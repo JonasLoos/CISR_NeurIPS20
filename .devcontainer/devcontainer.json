@@ -33,7 +33,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "echo cisr | /bin/bash install.sh && echo 'source activate $ENV_NAME' >> ~/.bashrc",
+	"postCreateCommand": "echo cisr | /bin/bash install.sh",
 
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
