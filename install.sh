@@ -10,9 +10,6 @@ PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 pip install -e $PROJECT_DIR
 conda install --yes -c anaconda mpi4py
 
-# automatically switch to the new environment
-echo "source activate $ENV_NAME" >> ~/.bashrc
-
 echo "# To activate this environment and use the library, use
 #
 #     $ conda activate $ENV_NAME
