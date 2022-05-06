@@ -7,7 +7,7 @@ install_requires=[
     'stable_baselines>=2.8.0,<2.9.0',
     'tensorflow>=1.15,<2.0.0',
     'numpy>=1.16.0,<1.19.0',
-    'gym ~= 0.17.3'
+    'gym ~= 0.17.3',
     'Box2D', 'GPyOpt', 'tabulate', 'matplotlib', 'scipy', 'GPy',
     'cloudpickle', 'tabulate'
 ]
