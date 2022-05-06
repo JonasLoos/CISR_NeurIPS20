@@ -7,7 +7,8 @@ install_requires=[
     'stable_baselines>=2.8.0,<2.9.0',
     'tensorflow>=1.15,<2.0.0',
     'numpy>=1.16.0,<1.19.0',
-    'Box2D', 'GPyOpt', 'tabulate', 'matplotlib', 'scipy', 'GPy', 'gym',
+    'gym ~= 0.17.3'
+    'Box2D', 'GPyOpt', 'tabulate', 'matplotlib', 'scipy', 'GPy',
     'cloudpickle', 'tabulate'
 ]
 
@@ -24,11 +25,11 @@ setuptools.setup(
     keywords='safe reinforcement learning',
     packages=setuptools.find_packages(),
 	license='MIT',
-    classifiers=(
+    classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ),
+    ],
     include_package_data=True,
     install_requires=install_requires
 )
