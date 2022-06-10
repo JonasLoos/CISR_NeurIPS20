@@ -8,8 +8,9 @@ install_requires=[
     'tensorflow>=1.15,<2.0.0',
     'numpy>=1.16.0,<1.19.0',
     'gym ~= 0.17.3',
+    'protobuf == 3.20',
     'Box2D', 'GPyOpt', 'tabulate', 'matplotlib', 'scipy', 'GPy',
-    'cloudpickle', 'tabulate'
+    'cloudpickle',
 ]
 
 setuptools.setup(

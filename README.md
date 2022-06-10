@@ -24,6 +24,12 @@ pip install -e .
 
 ## Running Experiments
 
+Switch conda environment to given name (e.g. `cisr`):
+
+```bash
+conda activate cisr
+```
+
 For each environment considered in the paper (lunar lander and frozen lake), we provide pre-trained teachers and the data for their evaluation with 10
 independent students. Therefore, for each of the environments, it is possible to :
 
