@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+
 import src.envs.lunar_lander.utils as utils
 import src.envs.lunar_lander.conditions as conditions
 
