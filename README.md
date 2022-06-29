@@ -22,6 +22,14 @@ This script creates a conda environment and automatically installs all the depen
 pip install -e .
 ```
 
+## Testing
+
+To run the unit tests:
+
+```bash
+python -m unittest discover -v -s . -p "*test*.py"
+```
+
 ## Running Experiments
 
 Switch conda environment to given name (e.g. `cisr`):
