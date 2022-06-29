@@ -25,7 +25,7 @@ def plot_comparison(log_dir, teacher_dir):
     # Fix plotting when using command line on Mac
     plt.rcParams['pdf.fonttype'] = 42
 
-    modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+    modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit', 'Heuristic']
     metric = ['successes', 'training_failures', 'averarge_returns']
     metric_summary = np.zeros((len(modes), len(metric)), dtype=float)
     teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
@@ -46,6 +46,9 @@ def plot_comparison(log_dir, teacher_dir):
                                             metric=metric_name, fig=fig,
                                             label=label, legend=True)
                 metric_summary[i, j] = mu
+
+    if not os.path.isdir(log_dir):
+        raise Exception('The teacher has to be evaluated before plotting (--evaluate)')
 
     np.savez(os.path.join(log_dir, 'metrics_summary.npz'),
              metric_summary=metric_summary)
@@ -69,7 +72,7 @@ def run_comparision(log_dir, teacher_dir):
 
     n_trials = 10
     t = time.time()
-    for mode in ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']:
+    for mode in ['Trained', 'Heuristic']: # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
         if mode == 'SR2':
             model = OpenLoopTeacher([1])
         elif mode in ['SR1', 'Original']:
@@ -79,8 +82,11 @@ def run_comparision(log_dir, teacher_dir):
         elif mode == 'Bandit':
             model = NonStationaryBanditPolicy(3, 10)
         elif mode == 'Trained':
-            model =SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                           'trained_teacher'))
+            model = SingleSwitchPolicy.load(os.path.join(teacher_dir,
+                                            'trained_teacher'))
+        elif mode == 'Heuristic':
+            model = OpenLoopTeacher(range(3, 103))
+        
         processes = []
 
         for i in range(n_trials):

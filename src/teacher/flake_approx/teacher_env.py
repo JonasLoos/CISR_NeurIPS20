@@ -57,10 +57,17 @@ def make_base_small_cenvs():
     # avg_constraint = [True, True]
 
     # 3 Interventions
-    dist = [2, 1, 1]
-    tau = [0.1, 0.1, 0]
-    buff_size = [1, 1, 0]
-    avg_constraint = [True, True, True]
+    # dist = [2, 1, 1]
+    # tau = [0.1, 0.1, 0]
+    # buff_size = [1, 1, 0]
+    # avg_constraint = [True, True, True]
+    # interventions = []
+
+    # 3 Interventions and heuristic
+    dist = [2, 1, 1] + [1] * 100
+    tau = [0.1, 0.1, 0] + [0.1] * 100
+    buff_size = [1, 1, 0] + list(range(1, 100))
+    avg_constraint = [True, True, True] + [True] * 100
     interventions = []
 
     for d, t, b, avg in zip(dist, tau, buff_size, avg_constraint):
