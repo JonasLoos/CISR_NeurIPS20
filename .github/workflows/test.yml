@@ -16,7 +16,7 @@ jobs:
 
       - uses: s-weigand/setup-conda@v1
         with:
-          activate-conda: false
+          activate-conda: true
           update-conda: true
           python-version: '3.7'
           conda-channels: conda-forge, defaults
@@ -25,6 +25,9 @@ jobs:
         run: |
           conda create -n cisr --yes python=3.7
           conda init bash
+          
+      - name: Activate cisr environment
+        run: |
           conda activate cisr
 
       - name: Install cisr
