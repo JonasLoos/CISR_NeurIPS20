@@ -20,7 +20,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          conda install --yes -c anaconda mpi4py
+          conda install --yes -c anaconda mpi4py tensorflow==1.15.5
 
       - name: Install cisr
         run: |
