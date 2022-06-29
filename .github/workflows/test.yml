@@ -15,7 +15,7 @@ jobs:
           activate-environment: cisr
           python-version: 3.7
           channels: conda-forge
-          channel-priority: flexible
+          channel-priority: strict
           auto-update-conda: true
       
       - name: Install cisr
