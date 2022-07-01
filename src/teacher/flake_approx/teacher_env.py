@@ -9,7 +9,7 @@ from src.envs import CMDP, FrozenLakeEnvCustomMap
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.students import LagrangianStudent, identity_transfer
 from src.online_learning import ExponetiatedGradient
-from src.teacher import FrozenLakeEvaluationLogger,  TeacherFrozenEnv, \
+from src.teacher import FrozenLakeEvaluationLogger, \
     create_intervention, SmallFrozenTeacherEnv
 from src.teacher.frozen_lake_env import SmallFrozenTrainingObservation, SmallFrozenNonStationaryBandits
 from src.envs.frozen_lake.utils import create_intervention_from_map, \
@@ -63,11 +63,11 @@ def make_base_small_cenvs():
     # avg_constraint = [True, True, True]
     # interventions = []
 
-    # 3 Interventions and heuristic
-    dist = [2, 1, 1] + [1] * 100
-    tau = [0.1, 0.1, 0] + [0.1] * 100
-    buff_size = [1, 1, 0] + list(range(1, 100))
-    avg_constraint = [True, True, True] + [True] * 100
+    # 3 Interventions and [1, 1000] steps back
+    dist = [2, 1, 1] + [1] * 1000
+    tau = [0.1, 0.1, 0] + [0.1] * 1000
+    buff_size = [1, 1, 0] + list(range(1, 1001))
+    avg_constraint = [True, True, True] + [True] * 1000
     interventions = []
 
     for d, t, b, avg in zip(dist, tau, buff_size, avg_constraint):
@@ -103,7 +103,7 @@ def my_small_cnn(scaled_images, **kwargs):
 
 def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
                        original=False, obs_from_training=False,
-                       non_stationary_bandit=False):
+                       non_stationary_bandit=False, custom=False):
     # Student definition
     br_kwargs = dict(policy=CnnPolicy, verbose=0, n_steps=128,
                      ent_coef=0.05, cliprange=0.2, learning_rate=1e-3,

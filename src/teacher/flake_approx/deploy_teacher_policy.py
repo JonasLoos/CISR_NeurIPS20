@@ -6,9 +6,8 @@ import time
 from itertools import cycle
 from functools import partial
 
-
-from src.teacher.flake_approx.teacher_env import create_teacher_env
-from src.envs.frozen_lake.utils import plot_trajectories, deploy, plot_networks
+from src.teacher.flake_approx.teacher_env import create_teacher_env, make_base_small_cenvs
+from src.envs.frozen_lake.utils import plot_trajectories, deploy
 
 import tensorflow as tf
 
@@ -32,7 +31,13 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
 
     i = 0
     while True:
-        a, _ = policy.predict(obs_t)
+        if isinstance(policy, HeuristicTeacher):
+            params = dict(
+                n_steps = n_steps,
+            )
+            a, _ = policy.predict(obs_t, params=params)
+        else:
+            a, _ = policy.predict(obs_t)
         obs_t, teacher_rewards[i], done, _ = teacher_env.step(a)
         if hasattr(policy, 'add_point'):  # For non stationary bandit policy
             policy.add_point(a, teacher_rewards[i])
@@ -132,6 +137,20 @@ class OpenLoopTeacher(object):
 
     def predict(self, obs):
         return next(self.actions), None
+
+
+class HeuristicTeacher(object):
+    """
+    Heuristic teacher that increases the buffer size on each intervention
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        action = self.interventions_counter
+        self.interventions_counter += 1
+        return self.actions[action], None
 
 
 if __name__ == '__main__':
