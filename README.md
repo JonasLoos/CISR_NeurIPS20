@@ -1,5 +1,7 @@
 # Curriculum Induction for Safe Reinforcement learning (CISR)
 
+[![Unittest](https://github.com/Safe-RL-Team/CISR_NeurIPS20/workflows/Run%20Tests/badge.svg?branch=master)](https://github.com/Safe-RL-Team/CISR_NeurIPS20/actions/workflows/test.yml)
+
 ## Overview
 
 This repository contains the implementation of the Curriculum Induction for Safe Reinforcement learning (CISR) framework and the code to reproduce the experiments presented in the paper ["Safe Reinforcement Learning via Curriculum Induction", Matteo Turchetta, Andrey Kolobov, Shital Shah, Andreas Krause and Alekh Agarwal](https://arxiv.org/abs/2006.12136).
@@ -20,6 +22,14 @@ This script creates a conda environment and automatically installs all the depen
 
 ```bash
 pip install -e .
+```
+
+## Testing
+
+To run the unit tests:
+
+```bash
+python -m unittest discover -v -s . -p "*test*.py"
 ```
 
 ## Running Experiments
