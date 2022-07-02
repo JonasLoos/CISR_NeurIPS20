@@ -5,11 +5,14 @@ import multiprocessing as mp
 import time
 from itertools import cycle
 from functools import partial
+from src.teacher import NonStationaryBanditPolicy
 
-from src.teacher.flake_approx.teacher_env import create_teacher_env, make_base_small_cenvs
+from src.teacher.flake_approx.teacher_env import create_teacher_env
 from src.envs.frozen_lake.utils import plot_trajectories, deploy
 
 import tensorflow as tf
+
+from src.teacher.frozen_single_switch_utils import SingleSwitchPolicy
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
@@ -31,7 +34,12 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
 
     i = 0
     while True:
-        if isinstance(policy, HeuristicTeacher):
+        if not isinstance(
+            policy, (
+                type(OpenLoopTeacher), 
+                type(NonStationaryBanditPolicy), 
+                type(SingleSwitchPolicy)
+            )):
             params = dict(
                 n_steps = n_steps,
             )
@@ -139,9 +147,9 @@ class OpenLoopTeacher(object):
         return next(self.actions), None
 
 
-class HeuristicTeacher(object):
+class IncrementalTeacher(object):
     """
-    Heuristic teacher that increases the buffer size on each intervention
+    Incremental heuristic teacher that increases the buffer size on each intervention
     """
     def __init__(self, action_sequence):
         self.actions = action_sequence
@@ -150,6 +158,18 @@ class HeuristicTeacher(object):
     def predict(self, obs, params=None):
         action = self.interventions_counter
         self.interventions_counter += 1
+        return self.actions[action], None
+
+
+class HalfwayTeacher(object):
+    """
+    Halfway heuristic teacher that goes back half of the number of steps
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        action = int(np.ceil(0.5 * params['n_steps']))
         return self.actions[action], None
 
 

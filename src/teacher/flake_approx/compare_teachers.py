@@ -1,4 +1,3 @@
-from datetime import datetime
 import numpy as np
 import os
 from functools import partial
@@ -7,8 +6,9 @@ import multiprocessing as mp
 import time
 from tabulate import tabulate
 import argparse
+import importlib
 
-from src.teacher.flake_approx.deploy_teacher_policy import HeuristicTeacher, deploy_policy, \
+from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
@@ -63,7 +63,6 @@ def run_comparision(log_dir, teacher_dir, modes, t):
     env_f_original = partial(create_teacher_env, original=True)
     env_f_single_switch = partial(create_teacher_env, obs_from_training=True)
     env_f_stationary_bandit = partial(create_teacher_env, non_stationary_bandit=True)
-    env_f_custom = partial(create_teacher_env, custom=True)
 
     log_dir = os.path.join(log_dir, t)
 
@@ -80,8 +79,10 @@ def run_comparision(log_dir, teacher_dir, modes, t):
             model = NonStationaryBanditPolicy(3, 10)
         elif mode == 'Trained':
             model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
-        elif mode == 'Heuristic':
-            model = HeuristicTeacher(range(3, 1003))
+        else:
+            teacher_module = importlib.import_module("src.teacher.flake_approx.deploy_teacher_policy")
+            teacher_class = getattr(teacher_module, mode + 'Teacher')
+            model = teacher_class(range(3, 1003))
         
         processes = []
 
@@ -93,8 +94,6 @@ def run_comparision(log_dir, teacher_dir, modes, t):
                 teacher_env = env_f_single_switch
             elif mode == 'Bandit':
                 teacher_env = env_f_stationary_bandit
-            elif mode == 'Heuristic':
-                teacher_env = env_f_custom
             else:
                 teacher_env = env_f
             p = mp.Process(target=deploy_policy,
@@ -182,7 +181,7 @@ if __name__ == '__main__':
     teachers_to_plot = teachers if args.plot else []
     teachers_to_run = teachers if args.evaluate else []
 
-    modes = ['Heuristic', 'Trained'] # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+    modes = ['Halfway', 'Trained', 'Incremental'] # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
 
     for t in teachers_to_run:
         print(f'Evaluating teacher {t}')

@@ -103,7 +103,7 @@ def my_small_cnn(scaled_images, **kwargs):
 
 def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
                        original=False, obs_from_training=False,
-                       non_stationary_bandit=False, custom=False):
+                       non_stationary_bandit=False):
     # Student definition
     br_kwargs = dict(policy=CnnPolicy, verbose=0, n_steps=128,
                      ent_coef=0.05, cliprange=0.2, learning_rate=1e-3,
