@@ -1,3 +1,4 @@
+from typing import Callable
 import numpy as np
 import gym
 from collections import deque
@@ -131,8 +132,14 @@ class TeacherIntervention(CMDP):
         return obs
 
 
-def create_intervention(base_cenv, interventions, taus, buf_size,
-                        use_vec=False, **kwargs):
+def create_intervention(
+        base_cenv : Callable,
+        interventions : "list[Callable]",
+        taus : "list[float]",
+        buf_size : int,
+        use_vec : bool = False,
+        **kwargs
+    ):
     """
     Create interventions starting from base CMDP, constraints and buffer.
 
@@ -158,17 +165,12 @@ def create_intervention(base_cenv, interventions, taus, buf_size,
         TeacherIntervention kwargs
 
     """
-    if use_vec:
-        assert callable(base_cenv), 'For efficiency a callable to produce ' \
-                                    'the cenv is needed'
-
-        def intervention_fn():
-            return TeacherIntervention(
-                base_cenv(), interventions, taus, buf_size, **kwargs)
-        return intervention_fn
-    else:
+    assert callable(base_cenv), 'For efficiency a callable to produce ' \
+                                'the cenv is needed'
+    def intervention_fn():
         return TeacherIntervention(
-                base_cenv, interventions, taus, buf_size, **kwargs)
+            base_cenv(), interventions, taus, buf_size, **kwargs)
+    return intervention_fn if use_vec else intervention_fn()
 
 
 class TeacherEnv(gym.Env):
