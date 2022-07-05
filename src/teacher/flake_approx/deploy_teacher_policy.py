@@ -5,7 +5,7 @@ import multiprocessing as mp
 import time
 from itertools import cycle
 from functools import partial
-from src.teacher import NonStationaryBanditPolicy
+from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
 
 from src.teacher.flake_approx.teacher_env import create_teacher_env
 from src.envs.frozen_lake.utils import plot_trajectories, deploy
@@ -37,6 +37,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
         if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
+                learning_steps = teacher_env.learning_steps
             )
             a, _ = policy.predict(obs_t, params=params)
         else:
@@ -164,7 +165,7 @@ class HalfwayTeacher(object):
         self.actions = action_sequence
 
     def predict(self, obs, params=None):
-        action = int(np.ceil(0.5 * params['n_steps']))
+        action = int(np.ceil(0.5 * params['learning_steps']))
         return self.actions[action], None
 
 
