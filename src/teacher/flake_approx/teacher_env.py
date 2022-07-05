@@ -1,3 +1,4 @@
+from typing import Callable
 import numpy as np
 
 from stable_baselines import PPO2
@@ -9,7 +10,7 @@ from src.envs import CMDP, FrozenLakeEnvCustomMap
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.students import LagrangianStudent, identity_transfer
 from src.online_learning import ExponetiatedGradient
-from src.teacher import FrozenLakeEvaluationLogger,  TeacherFrozenEnv, \
+from src.teacher import FrozenLakeEvaluationLogger, \
     create_intervention, SmallFrozenTeacherEnv
 from src.teacher.frozen_lake_env import SmallFrozenTrainingObservation, SmallFrozenNonStationaryBandits
 from src.envs.frozen_lake.utils import create_intervention_from_map, \
@@ -19,7 +20,11 @@ import tensorflow as tf
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
+from src.teacher.flake_approx.config import MAP_NAME
+
+
 __all__ = ['create_teacher_env', 'small_base_cenv_fn']
+
 
 
 def constraint(info=None, **kwargs):
@@ -27,28 +32,27 @@ def constraint(info=None, **kwargs):
 
 
 def small_base_env_fn():
-    # Base MDP
-    world_map = MAPS['small']
-    not_slipping_prob = 0.8
-
-    env_kwargs = dict(desc=world_map,
-                      not_slipping_prob=not_slipping_prob,
-                      base_r_mapping=None,
-                      timeout=200)
-    return FrozenLakeEnvCustomMap(**env_kwargs)
+    '''Base MDP'''
+    return FrozenLakeEnvCustomMap(
+        desc = MAPS[MAP_NAME],
+        not_slipping_prob = 0.8,
+        base_r_mapping=None,
+        timeout=200
+    )
 
 
-# Base CMDP
 def small_base_cenv_fn():
-    return CMDP(small_base_env_fn(), constraint,
-                constraints_values=[0],
-                n_constraints=1,
-                avg_constraint=True)
+    '''Base CMDP'''
+    return CMDP(
+        small_base_env_fn(),
+        constraint,
+        constraints_values = [0],
+        n_constraints = 1,
+        avg_constraint = True
+    )
 
 
 def make_base_small_cenvs():
-    # Base MDP
-    world_map = MAPS['small']
 
     # # 2 interventions
     # dist = [1, 1]
@@ -57,25 +61,33 @@ def make_base_small_cenvs():
     # avg_constraint = [True, True]
 
     # 3 Interventions
-    dist = [2, 1, 1]
-    tau = [0.1, 0.1, 0]
-    buff_size = [1, 1, 0]
-    avg_constraint = [True, True, True]
+    # dist = [2, 1, 1]
+    # tau = [0.1, 0.1, 0]
+    # buff_size = [1, 1, 0]
+    # avg_constraint = [True, True, True]
+    # interventions = []
+
+    # 3 Interventions and [1, 1000] steps back
+    dist = [2, 1, 1] + [1] * 1000
+    tau = [0.1, 0.1, 0] + [0.1] * 1000
+    buff_size = [1, 1, 0] + list(range(1, 1001))
+    avg_constraint = [True, True, True] + [True] * 1000
     interventions = []
 
     for d, t, b, avg in zip(dist, tau, buff_size, avg_constraint):
         interventions.append(
             create_intervention(
                 small_base_cenv_fn,
-                create_intervention_from_map(add_teacher(world_map, d)),
+                [create_intervention_from_map(add_teacher(MAPS[MAP_NAME], d))],
                 [t], b, use_vec=True, avg_constraint=avg)
         )
 
     assert callable(interventions[0])
     test_env = create_intervention(
-        small_base_cenv_fn(), create_intervention_from_map(add_teacher(
-            world_map)),
-        [0.0], 0, avg_constraint=True)
+        small_base_cenv_fn,
+        [create_intervention_from_map(add_teacher(MAPS[MAP_NAME]))],
+        [0.0], 0, avg_constraint=True
+    )
 
     return interventions, test_env
 
@@ -111,34 +123,34 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
     student_cls = LagrangianStudent
     n_envs = 4
     use_sub_proc_env = False
-    student_default_kwargs = {'env': None,
-                              'br_algo': PPO2,
-                              'online_algo': ExponetiatedGradient,
-                              'br_kwargs': br_kwargs,
-                              'online_kwargs': online_kwargs,
-                              'lagrangian_ronuds': 2,
-                              'curriculum_transfer': identity_transfer,
-                              'br_uses_vec_env': True,
-                              'use_sub_proc_env': use_sub_proc_env,
-                              'n_envs': n_envs,
-                              }
+    student_default_kwargs = {
+        'env': None,
+        'br_algo': PPO2,
+        'online_algo': ExponetiatedGradient,
+        'br_kwargs': br_kwargs,
+        'online_kwargs': online_kwargs,
+        'lagrangian_ronuds': 2,
+        'curriculum_transfer': identity_transfer,
+        'br_uses_vec_env': True,
+        'use_sub_proc_env': use_sub_proc_env,
+        'n_envs': n_envs,
+    }
     student_ranges_dict = {}
 
     # Teacher interventions
+    interventions, test_env = make_base_small_cenvs()
     if original:
         # To preserve the teacher env interface while training in the
         # original environment, we introduce a dummy intervention
         # condition that is always False.
-        def dummy_intervention(**kwargs):
-            return 0
-        _, test_env = make_base_small_cenvs()
-        intervention = create_intervention(
-            base_cenv=small_base_cenv_fn,
-            interventions=[dummy_intervention], taus=[0], buf_size=0,
-            use_vec=True, avg_constraint=True)
-        interventions = [intervention]
-    else:
-        interventions, test_env = make_base_small_cenvs()
+        interventions = [create_intervention(
+            base_cenv = small_base_cenv_fn,
+            interventions = [lambda **kwargs: 0],
+            taus = [0],
+            buf_size = 0,
+            use_vec = True,
+            avg_constraint = True
+        )]
     learning_steps = 4800 * 2
     time_steps_lim = learning_steps * 10
     test_episode_timeout = 200

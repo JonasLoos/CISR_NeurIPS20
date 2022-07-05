@@ -1,17 +1,17 @@
-import numpy as np
 import os
+import time
+from datetime import datetime
+import numpy as np
 import GPy
 from GPyOpt.methods import BayesianOptimization
 from GPyOpt.models import GPModel
-import time
-from datetime import datetime
 from src.teacher.frozen_single_switch_utils import evaluate_single_switch_policy, \
     SingleSwitchPolicy
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
 
 
-def main(n_interv=3):
+def main(n_interv : int = 3):
     if n_interv == 2:
         domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (0, 6)},
                   {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.5)}]
@@ -66,6 +66,8 @@ def main(n_interv=3):
             policy = init_teaching_policy(params)
             return evaluate_single_switch_policy(policy, teacher_env,
                                                  student_final_env)
+    else:
+        raise ValueError(f'Unexpected value for n_interv. Expected 2 or 3, but got {n_interv}')
 
     # Logging dir
     exp_starting_time = datetime.now().strftime('%d_%m_%y__%H_%M_%S')
