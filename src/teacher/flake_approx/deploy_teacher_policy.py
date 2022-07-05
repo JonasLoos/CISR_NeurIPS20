@@ -32,8 +32,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
     teacher_rewards = np.zeros(n_steps, dtype=float)
     teacher_observations = np.zeros((obs_t.size, n_steps), dtype=float)
 
-    i = 0
-    while True:
+    for i in range(n_steps):
         if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
@@ -60,9 +59,10 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
         plt.savefig(os.path.join(log_dir, f'trajectories{i}.pdf'),format='pdf')
         # plot_networks(student.br, env.desc.shape)
         plt.close()
-        i += 1
         if done:
             break
+    else:
+        raise Exception(f'Teacher was not done after `n_steps` ({policy}, {teacher_env})')
 
     # Plot successes and returns
     np.savez(os.path.join(log_dir, 'results.npz'),
