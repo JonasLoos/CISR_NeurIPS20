@@ -23,11 +23,14 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 __all__ = ['create_teacher_env', 'small_base_cenv_fn']
 
 
+world_map = MAPS['8x8']
+
+
 def constraint(info=None, **kwargs):
     return {'g': float(info['next_state_type'] in 'H')}
 
 
-def small_base_env_fn(world_map : "list[str]"):
+def small_base_env_fn():
     '''Base MDP'''
     return FrozenLakeEnvCustomMap(
         desc = world_map,
@@ -37,10 +40,10 @@ def small_base_env_fn(world_map : "list[str]"):
     )
 
 
-def small_base_cenv_fn(world_map : "list[str]") -> "Callable[[], CMDP]":
+def small_base_cenv_fn():
     '''Base CMDP'''
-    return lambda: CMDP(
-        small_base_env_fn(world_map),
+    return CMDP(
+        small_base_env_fn(),
         constraint,
         constraints_values = [0],
         n_constraints = 1,
@@ -66,14 +69,14 @@ def make_base_small_cenvs(world_map):
     for d, t, b, avg in zip(dist, tau, buff_size, avg_constraint):
         interventions.append(
             create_intervention(
-                small_base_cenv_fn(world_map),
+                small_base_cenv_fn,
                 [create_intervention_from_map(add_teacher(world_map, d))],
                 [t], b, use_vec=True, avg_constraint=avg)
         )
 
     assert callable(interventions[0])
     test_env = create_intervention(
-        small_base_cenv_fn(world_map),
+        small_base_cenv_fn,
         [create_intervention_from_map(add_teacher(world_map))],
         [0.0], 0, avg_constraint=True
     )
@@ -127,14 +130,13 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
     student_ranges_dict = {}
 
     # Teacher interventions
-    world_map = MAPS['5x5']
     interventions, test_env = make_base_small_cenvs(world_map)
     if original:
         # To preserve the teacher env interface while training in the
         # original environment, we introduce a dummy intervention
         # condition that is always False.
         interventions = [create_intervention(
-            base_cenv = small_base_cenv_fn(world_map),
+            base_cenv = small_base_cenv_fn,
             interventions = [lambda **kwargs: 0],
             taus = [0],
             buf_size = 0,
