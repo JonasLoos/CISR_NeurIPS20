@@ -5,7 +5,7 @@ import multiprocessing as mp
 import time
 from itertools import cycle
 from functools import partial
-from src.teacher import NonStationaryBanditPolicy
+from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
 
 from src.teacher.flake_approx.teacher_env import create_teacher_env
 from src.envs.frozen_lake.utils import plot_trajectories, deploy
