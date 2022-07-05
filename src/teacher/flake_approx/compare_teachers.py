@@ -177,26 +177,26 @@ if __name__ == '__main__':
     if len(teachers) == 0:
         teachers = ['03_06_20__11_46_57']
 
-    teachers_to_plot = teachers if args.plot else []
-    teachers_to_run = teachers if args.evaluate else []
+    if args.plot:
+        # plot teachers
+        for t in teachers:
+            print(f'Evaluating teacher {t}')
+            teacher_dir = os.path.join(base_teacher_dir, t)
+            run_comparision(log_dir, teacher_dir)
 
-    for t in teachers_to_run:
-        print(f'Evaluating teacher {t}')
-        teacher_dir = os.path.join(base_teacher_dir, t)
-        run_comparision(log_dir, teacher_dir)
+        metrics_statistics = np.array([
+            get_metric_summary(log_dir, os.path.join(base_teacher_dir, t))
+            for t in teachers
+        ])
 
-    for t in teachers_to_plot:
-        print(f'Plotting teacher {t}')
-        teacher_dir = os.path.join(base_teacher_dir, t)
-        plot_comparison(log_dir, teacher_dir)
+        # Print table
+        mu = metrics_statistics.mean(axis=0)
+        std = metrics_statistics.std(axis=0) / np.sqrt(metrics_statistics.shape[0])
+        print_latex_table(mu, std)
 
-    metrics_statistics = []
-    for t in teachers_to_plot:
-        teacher_dir = os.path.join(base_teacher_dir, t)
-        metrics_statistics.append(get_metric_summary(log_dir, teacher_dir))
-    metrics_statistics = np.asarray(metrics_statistics)
-
-    # Print table
-    mu = metrics_statistics.mean(axis=0)
-    std = metrics_statistics.std(axis=0) / np.sqrt(metrics_statistics.shape[0])
-    print_latex_table(mu, std)
+    if args.evaluate:
+        # evaluate teachers
+        for t in teachers:
+            print(f'Plotting teacher {t}')
+            teacher_dir = os.path.join(base_teacher_dir, t)
+            plot_comparison(log_dir, teacher_dir)

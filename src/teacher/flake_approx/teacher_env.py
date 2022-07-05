@@ -51,7 +51,7 @@ def small_base_cenv_fn():
     )
 
 
-def make_base_small_cenvs(world_map):
+def make_base_small_cenvs():
 
     # # 2 interventions
     # dist = [1, 1]
@@ -130,7 +130,7 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
     student_ranges_dict = {}
 
     # Teacher interventions
-    interventions, test_env = make_base_small_cenvs(world_map)
+    interventions, test_env = make_base_small_cenvs()
     if original:
         # To preserve the teacher env interface while training in the
         # original environment, we introduce a dummy intervention
