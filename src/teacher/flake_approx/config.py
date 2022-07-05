@@ -12,14 +12,16 @@ MAP_NAME = '5x5_simple'
 
 
 # TODO: WIP
-# interventions
-INTERVENTIONS : "list[dict[str,Any]]" = [{
-    'name': 'Trained',
-    'label': '',
-    'model': lambda: SingleSwitchPolicy.load(os.path.join(teacher_dir,'trained_teacher')),
-    'teacher_env': partial(create_teacher_env, obs_from_training=True),
-},{
-    'name': 'Original',
-    'model': lambda: OpenLoopTeacher([0]),
-    'teacher_env': partial(create_teacher_env, original=True),
-}]
+# interventions / modes
+INTERVENTION_MODES = ['Halfway', 'Trained', 'Incremental'] # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+
+# INTERVENTIONS : "list[dict[str,Any]]" = [{
+#     'name': 'Trained',
+#     'label': '',
+#     'model': lambda: SingleSwitchPolicy.load(os.path.join(teacher_dir,'trained_teacher')),
+#     'teacher_env': partial(create_teacher_env, obs_from_training=True),
+# },{
+#     'name': 'Original',
+#     'model': lambda: OpenLoopTeacher([0]),
+#     'teacher_env': partial(create_teacher_env, original=True),
+# }]

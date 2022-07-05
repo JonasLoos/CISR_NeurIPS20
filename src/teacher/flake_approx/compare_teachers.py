@@ -8,7 +8,7 @@ from tabulate import tabulate
 import argparse
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
-from src.teacher.flake_approx.config import MAP_NAME
+from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES
 import importlib
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
@@ -26,7 +26,7 @@ def plot_comparison(log_dir, modes, t):
     set_figure_params(fontsize=7)
 
     # Fix plotting when using command line on Mac
-    plt.rcParams['pdf.fonttype'] = 42
+    plt.rcParams['pdf.fonttype'] = 42  # type: ignore
 
     metric = ['successes', 'training_failures', 'averarge_returns']
     metric_summary = np.zeros((len(modes), len(metric)), dtype=float)
@@ -186,21 +186,19 @@ if __name__ == '__main__':
     if len(teachers) == 0:
         teachers = ['03_06_20__11_46_57']
 
-    modes = ['Halfway', 'Trained', 'Incremental'] # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
-
     if args.evaluate:
         # evaluate teachers
         for t in teachers:
             print(f'Evaluating teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
-            run_comparision(log_dir, teacher_dir, modes, t)
+            run_comparision(log_dir, teacher_dir, INTERVENTION_MODES, t)
 
     if args.plot:
         # plot teachers
         for t in teachers:
             print(f'Plotting teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
-            plot_comparison(log_dir, modes, t)
+            plot_comparison(log_dir, INTERVENTION_MODES, t)
 
         # plot map
         plot_map(MAPS[MAP_NAME], legend=True)
