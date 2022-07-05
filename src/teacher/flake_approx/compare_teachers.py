@@ -165,6 +165,8 @@ if __name__ == '__main__':
                         help='Run the comparison between a pre-trained teacher and the baselines')
     parser.add_argument("--teacher_dir", nargs="*", type=str, default=[],
                         help='Directory(ies) containing the teacher to plot or evaluate (assumed to be in result/flake/teacher_training)')
+    parser.add_argument("--teacher_policy", nargs="*", type=str, default=[],
+                        help='Name(s) of the teacher(s) to plot or evaluate')
 
     args = parser.parse_args()
 
@@ -181,7 +183,10 @@ if __name__ == '__main__':
     teachers_to_plot = teachers if args.plot else []
     teachers_to_run = teachers if args.evaluate else []
 
-    modes = ['Halfway', 'Trained', 'Incremental'] # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+    # Get teachers and use original teachers by default 
+    modes = args.teacher_policy
+    if len(modes) == 0:
+        modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
 
     for t in teachers_to_run:
         print(f'Evaluating teacher {t}')

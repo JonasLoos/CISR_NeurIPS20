@@ -37,7 +37,9 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
         if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
-                learning_steps = teacher_env.learning_steps
+                learning_steps = teacher_env.learning_steps,
+                steps_teacher_episode = teacher_env.steps_teacher_episode,
+                student_training_episodes_current_env = teacher_env.student_training_episodes_current_env
             )
             a, _ = policy.predict(obs_t, params=params)
         else:
@@ -157,16 +159,66 @@ class IncrementalTeacher(object):
         return self.actions[action], None
 
 
-class HalfwayTeacher(object):
+class Halfway1Teacher(object):
     """
-    Halfway heuristic teacher that goes back half of the number of steps
+    Halfway heuristic teacher that goes back half of the number of teacher steps in the episode
     """
     def __init__(self, action_sequence):
         self.actions = action_sequence
 
     def predict(self, obs, params=None):
-        action = int(np.ceil(0.5 * params['learning_steps']))
+        action = int(np.ceil(0.5 * params['steps_teacher_episode']))
         return self.actions[action], None
+
+
+class Halfway2Teacher(object):
+    """
+    Halfway heuristic teacher that goes back half of the number of student training episodes in the current env
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        print(params['student_training_episodes_current_env'])
+        action = int(np.ceil(0.5 * params['student_training_episodes_current_env']))
+        return self.actions[action], None
+
+
+class RandomTeacher(object):
+    """
+    Random teacher that goes back a random number of steps
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        upper_limit = params['steps_teacher_episode']
+        action = np.random.randint(1, upper_limit + 2)
+        return self.actions[action], None
+
+
+class All1Teacher(object):
+    """
+    Teacher that goes back all the way (HR)
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        upper_limit = params['student_training_episodes_current_env']
+        return self.actions[upper_limit], None
+
+
+class All2Teacher(object):
+    """
+    Teacher that goes back all the way (HR)
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        upper_limit = params['steps_teacher_episode']
+        return self.actions[upper_limit], None
 
 
 if __name__ == '__main__':
