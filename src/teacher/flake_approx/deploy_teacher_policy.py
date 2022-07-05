@@ -34,12 +34,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
 
     i = 0
     while True:
-        if not isinstance(
-            policy, (
-                type(OpenLoopTeacher), 
-                type(NonStationaryBanditPolicy), 
-                type(SingleSwitchPolicy)
-            )):
+        if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
             )
