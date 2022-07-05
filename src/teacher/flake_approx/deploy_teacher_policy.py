@@ -36,6 +36,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
         if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
+                learning_steps = teacher_env.learning_steps
             )
             a, _ = policy.predict(obs_t, params=params)
         else:
@@ -164,7 +165,7 @@ class HalfwayTeacher(object):
         self.actions = action_sequence
 
     def predict(self, obs, params=None):
-        action = int(np.ceil(0.5 * params['n_steps']))  # type: ignore
+        action = int(np.ceil(0.5 * params['learning_steps']))  # type: ignore
         return self.actions[action], None
 
 
