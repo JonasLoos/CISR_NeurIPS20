@@ -1,17 +1,37 @@
+'''Maps for the frozen lake environment'''
+
+
+# the encoding of the maps
+MAP_ENCODING = {
+    'F': 'Safe',
+    'G': 'Goal',
+    'H': 'Danger',
+    'S': 'Start',
+    'T': 'Teacher',  # maybe this should not be used
+}
+
+# predefined maps
 MAPS = {
     "4x4": [
         "SFFF",
         "FHFH",
         "FFFH",
-        "HFFG"
+        "HFFG",
     ],
     "5x5": [
-            "SFFFF",
-            "FHFHF",
-            "FFFHF",
-            "TFFFF",
-            "HFFGF"
-        ],
+        "SFFFF",
+        "FHFHF",
+        "FFFHF",
+        "TFFFF",
+        "HFFGF",
+    ],
+    "5x5_simple": [
+        "SFFFF",
+        "FFFFF",
+        "FFHFF",
+        "FFFFF",
+        "FFFFG",
+    ],
     "8x8": [
         "SFFFFFFF",
         "FFFFFFFF",
@@ -20,25 +40,23 @@ MAPS = {
         "FFFHFFFF",
         "FHHFFFHF",
         "FHFFHFHF",
-        "FFFHFFFG"],
-
+        "FFFHFFFG",
+    ],
     'test': [
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFFFFSFFFFFFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFHHFFFHHHHFFFFFFFF',
-         'FFFFFFFFHHFFFHHHHFFFFFFFF',
-         'FFFFFFFFHHFFFHHHHFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-         'FFFFFFFFFFFFFFFGFFFFFFFFF',
-         'FFFFFFFFFFFFFFFFFFFFFFFFF',
-
-         ],
-
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFFFFSFFFFFFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFHHFFFHHHHFFFFFFFF',
+        'FFFFFFFFHHFFFHHHHFFFFFFFF',
+        'FFFFFFFFHHFFFHHHHFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+        'FFFFFFFFFFFFFFFGFFFFFFFFF',
+        'FFFFFFFFFFFFFFFFFFFFFFFFF',
+    ],
     '2000lakes': [
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
@@ -79,8 +97,8 @@ MAPS = {
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-        'FFFFFFGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'],
-
+        'FFFFFFGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+    ],
     '2000lakes_easy': [
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
@@ -125,8 +143,8 @@ MAPS = {
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-        'FFFFFFGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'],
-
+        'FFFFFFGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+    ],
     '2000lakes_new': [
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
@@ -170,19 +188,19 @@ MAPS = {
         'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         'FFFFFFFGFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
         # 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'],
-        ],
-
-    'small': ['SFFFFFFFFF',
-              'FFFFFFFFFF',
-              'HFFFFFFFFF',
-              'FFHFFFFFFF',
-              'HFFFFHFFFF',
-              'FFHFFFHFFF',
-              'HFFFFHFFFF',
-              'FFHFFFFFFF',
-              'HFFFFFFFFF',
-              'FFFGFFFFFF']
-
+    ],
+    'small': [
+        'SFFFFFFFFF',
+        'FFFFFFFFFF',
+        'HFFFFFFFFF',
+        'FFHFFFFFFF',
+        'HFFFFHFFFF',
+        'FFHFFFHFFF',
+        'HFFFFHFFFF',
+        'FFHFFFFFFF',
+        'HFFFFFFFFF',
+        'FFFGFFFFFF',
+    ]
 }
 
 # from src.envs.maps_utils import plot_map, add_teacher

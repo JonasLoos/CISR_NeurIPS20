@@ -19,7 +19,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 __all__ = ['deploy_policy', 'plot_deployment_metric', 'OpenLoopTeacher']
 
 
-def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
+def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='?'):
     os.makedirs(log_dir, exist_ok=True)
     teacher_env = env_f()
     obs_t = teacher_env.reset()
@@ -32,8 +32,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
     teacher_rewards = np.zeros(n_steps, dtype=float)
     teacher_observations = np.zeros((obs_t.size, n_steps), dtype=float)
 
-    i = 0
-    while True:
+    for i in range(n_steps):
         if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
@@ -57,15 +56,16 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
         successes[i], averarge_returns[i] = succ, avg_r
         training_failures[i] = teacher_env.student_failures
 
-        print(f'{i+1} training-> success: {succ}\tavg_ret: '
-              f'{avg_r}\tavg_ret_succ {avg_r_succ}\t action {a}')
+        print(f'[process {process_name}] training step {i+1}/{n_steps} -> success: {succ:.4f}  avg_ret: '
+              f'{avg_r:.4f}  avg_ret_succ: {avg_r_succ:.4f}  action {a}')
         plot_trajectories(traj, env.desc.shape)
         plt.savefig(os.path.join(log_dir, f'trajectories{i}.pdf'),format='pdf')
         # plot_networks(student.br, env.desc.shape)
         plt.close()
-        i += 1
         if done:
             break
+    else:
+        raise Exception(f'Teacher was not done after `n_steps` ({policy}, {teacher_env})')
 
     # Plot successes and returns
     np.savez(os.path.join(log_dir, 'results.npz'),
@@ -75,7 +75,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
     f, axes = plt.subplots(1, 3)
     metrics = [successes, averarge_returns, teacher_rewards]
     titles = ['successes', 'student ret', 'teacher ret']
-    for a, metric, title in zip(axes, metrics, titles):
+    for a, metric, title in zip(axes, metrics, titles):  # type: ignore
         if title == 'teacher ret':
             a.plot(np.cumsum(metric))
         else:
@@ -107,12 +107,12 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
             except FileNotFoundError:
                     pass
     if metric == 'teacher_rewards':
-        returns = np.cumsum(np.asarray(returns)[:, :], axis=1)
+        returns = np.cumsum(np.array(returns)[:, :], axis=1)
     else:
-        returns = np.asarray(returns)
+        returns = np.array(returns)
     mu, std = np.mean(returns, axis=0), np.std(returns, axis=0)
     print(f'{log_dir.split("/")[-1]} - {metric} final mean -> {mu[-1]}')
-    std = std / np.sqrt(returns.shape[0])
+    std = std / np.sqrt(returns.shape[0])  # type: ignore
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
     ax.plot(mu, label=label)
