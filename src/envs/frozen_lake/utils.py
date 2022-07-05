@@ -269,7 +269,10 @@ def add_teacher(base_map, n_steps=1, danger='H', empty='F', teacher='T'):
     return new_map_list
 
 
-def plot_map(base_map, legend=False):
+def plot_map(base_map : "list[str]", legend : bool = False) -> None:
+    '''plot a frozen lake map'''
+    # TODO: use the MAP_ENCODING from frozen_maps.py instead of this weird algorithm
+
     base_map = np.array([list(s) for s in base_map])
     elements = np.unique(base_map)
 

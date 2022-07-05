@@ -1,3 +1,16 @@
+'''Maps for the frozen lake environment'''
+
+
+# the encoding of the maps
+MAP_ENCODING = {
+    'F': 'Safe',
+    'G': 'Goal',
+    'H': 'Danger',
+    'S': 'Start',
+    'T': 'Teacher',  # maybe this should not be used
+}
+
+# predefined maps
 MAPS = {
     "4x4": [
         "SFFF",

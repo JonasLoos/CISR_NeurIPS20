@@ -6,6 +6,9 @@ import multiprocessing as mp
 import time
 from tabulate import tabulate
 import argparse
+from src.envs.frozen_lake.frozen_maps import MAPS
+from src.envs.frozen_lake.utils import plot_map
+from src.teacher.flake_approx.config import MAP_NAME
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
@@ -195,6 +198,10 @@ if __name__ == '__main__':
             print(f'Plotting teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
             plot_comparison(log_dir, teacher_dir)
+
+        # plot map
+        plot_map(MAPS[MAP_NAME], legend=True)
+        plt.savefig(os.path.join(log_dir, 'map.pdf'))
 
         # Print table
         metrics_statistics = np.array([
