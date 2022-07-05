@@ -184,6 +184,19 @@ class Halfway2Teacher(object):
         return self.actions[action], None
 
 
+class TwentyPercentTeacher(object):
+    """
+    Heuristic teacher that goes back twenty percent of the number of student training episodes in the current env
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        print(params['student_training_episodes_current_env'])
+        action = int(np.ceil(0.2 * params['student_training_episodes_current_env']))
+        return self.actions[action], None
+
+
 class RandomTeacher(object):
     """
     Random teacher that goes back a random number of steps
