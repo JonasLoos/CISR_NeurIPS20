@@ -9,10 +9,10 @@ import argparse
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
 from src.teacher.flake_approx.config import MAP_NAME
+import importlib
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
-from src.contextual_bandits import CGPUCBPolicy, ContextualBanditRL
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
 from src.teacher.frozen_single_switch_utils import SingleSwitchPolicy
@@ -20,7 +20,7 @@ from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
 from src.utils.plotting import cm2inches, set_figure_params
 
 
-def plot_comparison(log_dir, teacher_dir):
+def plot_comparison(log_dir, modes, t):
     text_width = cm2inches(13.968)  # Text width in cm
     figsize = (text_width / 2, text_width / 3.5)
     set_figure_params(fontsize=7)
@@ -28,12 +28,10 @@ def plot_comparison(log_dir, teacher_dir):
     # Fix plotting when using command line on Mac
     plt.rcParams['pdf.fonttype'] = 42
 
-    modes = ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
     metric = ['successes', 'training_failures', 'averarge_returns']
     metric_summary = np.zeros((len(modes), len(metric)), dtype=float)
-    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                                   'trained_teacher'))
-    log_dir = os.path.join(log_dir, teacher.name)
+
+    log_dir = os.path.join(log_dir, t)
 
     for i, subdir in enumerate(modes):
         if subdir == 'Trained':
@@ -50,6 +48,9 @@ def plot_comparison(log_dir, teacher_dir):
                                             label=label, legend=True)
                 metric_summary[i, j] = mu
 
+    if not os.path.isdir(log_dir):
+        raise Exception('The teacher has to be evaluated before plotting (--evaluate)')
+
     np.savez(os.path.join(log_dir, 'metrics_summary.npz'),
              metric_summary=metric_summary)
     for j, metric_name in enumerate(metric):
@@ -60,19 +61,17 @@ def plot_comparison(log_dir, teacher_dir):
         plt.close(j)
 
 
-def run_comparision(log_dir, teacher_dir):
+def run_comparision(log_dir, teacher_dir, modes, t):
     env_f = partial(create_teacher_env)
     env_f_original = partial(create_teacher_env, original=True)
     env_f_single_switch = partial(create_teacher_env, obs_from_training=True)
-    env_f_stationary_bandit = partial(create_teacher_env,
-                                      non_stationary_bandit=True)
-    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                                   'trained_teacher'))
-    log_dir = os.path.join(log_dir, teacher.name)
+    env_f_stationary_bandit = partial(create_teacher_env, non_stationary_bandit=True)
+
+    log_dir = os.path.join(log_dir, t)
 
     n_trials = 10
     start_time = time.time()
-    for mode in ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']:
+    for mode in modes:
         if mode == 'SR2':
             model = OpenLoopTeacher([1])
         elif mode in ['SR1', 'Original']:
@@ -82,8 +81,12 @@ def run_comparision(log_dir, teacher_dir):
         elif mode == 'Bandit':
             model = NonStationaryBanditPolicy(3, 10)
         elif mode == 'Trained':
-            model =SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                           'trained_teacher'))
+            model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
+        else:
+            teacher_module = importlib.import_module("src.teacher.flake_approx.deploy_teacher_policy")
+            teacher_class = getattr(teacher_module, mode + 'Teacher')
+            model = teacher_class(range(3, 1003))
+        
         processes = []
 
         for i in range(n_trials):
@@ -136,10 +139,8 @@ def run_bandits(log_dir):
     print(f'[run_bandits] time elapsed: {time.time() - start_time}')
 
 
-def get_metric_summary(log_dir, teacher_dir):
-    teacher = SingleSwitchPolicy.load(os.path.join(teacher_dir,
-                                                   'trained_teacher'))
-    log_dir = os.path.join(log_dir, teacher.name)
+def get_metric_summary(log_dir, t):
+    log_dir = os.path.join(log_dir, t)
     return np.load(os.path.join(log_dir, 'metrics_summary.npz'))['metric_summary']
 
 
@@ -185,19 +186,21 @@ if __name__ == '__main__':
     if len(teachers) == 0:
         teachers = ['03_06_20__11_46_57']
 
+    modes = ['Halfway', 'Trained', 'Incremental'] # ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+
     if args.evaluate:
         # evaluate teachers
         for t in teachers:
             print(f'Evaluating teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
-            run_comparision(log_dir, teacher_dir)
+            run_comparision(log_dir, teacher_dir, modes, t)
 
     if args.plot:
         # plot teachers
         for t in teachers:
             print(f'Plotting teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
-            plot_comparison(log_dir, teacher_dir)
+            plot_comparison(log_dir, modes, t)
 
         # plot map
         plot_map(MAPS[MAP_NAME], legend=True)
