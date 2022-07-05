@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
-from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES
+from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES, NUMBER_OF_TRIALS
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
@@ -69,7 +69,6 @@ def run_comparision(log_dir, teacher_dir, modes, t):
 
     log_dir = os.path.join(log_dir, t)
 
-    n_trials = 10
     start_time = time.time()
     for mode in modes:
         if mode == 'SR2':
@@ -89,7 +88,7 @@ def run_comparision(log_dir, teacher_dir, modes, t):
         
         processes = []
 
-        for i in range(n_trials):
+        for i in range(NUMBER_OF_TRIALS):
             log_tmp = os.path.join(log_dir, mode, f'experiment{i}')
             if mode == 'Original':
                 teacher_env = env_f_original
@@ -99,9 +98,10 @@ def run_comparision(log_dir, teacher_dir, modes, t):
                 teacher_env = env_f_stationary_bandit
             else:
                 teacher_env = env_f
+            process_name = f'{mode}-{i}'
             p = mp.Process(target=deploy_policy,
                            args=[model, log_tmp, teacher_env,
-                                 small_base_cenv_fn])
+                                 small_base_cenv_fn, process_name])
             p.start()
             processes.append(p)
         for p in processes:
@@ -206,7 +206,7 @@ def main():
 
         # Print table
         metrics_statistics = np.array([
-            get_metric_summary(log_dir, os.path.join(base_teacher_dir, t))
+            get_metric_summary(log_dir, t)
             for t in teachers
         ])
         mu = metrics_statistics.mean(axis=0)

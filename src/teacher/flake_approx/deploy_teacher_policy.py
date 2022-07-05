@@ -19,7 +19,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 __all__ = ['deploy_policy', 'plot_deployment_metric', 'OpenLoopTeacher']
 
 
-def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
+def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='?'):
     os.makedirs(log_dir, exist_ok=True)
     teacher_env = env_f()
     obs_t = teacher_env.reset()
@@ -53,8 +53,8 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
         successes[i], averarge_returns[i] = succ, avg_r
         training_failures[i] = teacher_env.student_failures
 
-        print(f'{i+1} training-> success: {succ}\tavg_ret: '
-              f'{avg_r}\tavg_ret_succ {avg_r_succ}\t action {a}')
+        print(f'[process {process_name}] training step {i+1}/{n_steps} -> success: {succ:.4f}  avg_ret: '
+              f'{avg_r:.4f}  avg_ret_succ: {avg_r_succ:.4f}  action {a}')
         plot_trajectories(traj, env.desc.shape)
         plt.savefig(os.path.join(log_dir, f'trajectories{i}.pdf'),format='pdf')
         # plot_networks(student.br, env.desc.shape)
