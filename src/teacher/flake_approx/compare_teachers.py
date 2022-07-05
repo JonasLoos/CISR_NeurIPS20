@@ -68,7 +68,7 @@ def run_comparision(log_dir, teacher_dir):
     log_dir = os.path.join(log_dir, teacher.name)
 
     n_trials = 10
-    t = time.time()
+    start_time = time.time()
     for mode in ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']:
         if mode == 'SR2':
             model = OpenLoopTeacher([1])
@@ -100,7 +100,7 @@ def run_comparision(log_dir, teacher_dir):
             processes.append(p)
         for p in processes:
             p.join()
-    print(f'elapsed {time.time() - t}')
+    print(f'[run_comparison] time elapsed: {time.time() - start_time}')
 
 
 def run_bandits(log_dir):
@@ -112,7 +112,7 @@ def run_bandits(log_dir):
                                       non_stationary_bandit=True)
     n_rounds = 3  # Number of times n_trials students are run
     n_trials = 10  # Number of students to run in parallel
-    t = time.time()
+    start_time = time.time()
 
     model = NonStationaryBanditPolicy(3, 10)
 
@@ -130,7 +130,7 @@ def run_bandits(log_dir):
             processes.append(p)
         for p in processes:
             p.join()
-    print(f'elapsed {time.time() - t}')
+    print(f'[run_bandits] time elapsed: {time.time() - start_time}')
 
 
 def get_metric_summary(log_dir, teacher_dir):
@@ -147,7 +147,9 @@ def print_latex_table(mu, std):
         for j in range(len(mu_row)):
             line.append(f'${mu_row[j]:.3f}\pm{std_row[j]:.3f}$')
         table.append(line)
+    print()
     print(tabulate(table, tablefmt="latex_raw"))
+    print()
 
 
 if __name__ == '__main__':
