@@ -70,6 +70,7 @@ def run_comparision(log_dir, teacher_dir, modes, t):
     log_dir = os.path.join(log_dir, t)
 
     start_time = time.time()
+    processes = []
     for mode in modes:
         if mode == 'SR2':
             model = OpenLoopTeacher([1])
@@ -86,8 +87,6 @@ def run_comparision(log_dir, teacher_dir, modes, t):
             teacher_class = getattr(teacher_module, mode + 'Teacher')
             model = teacher_class(range(3, 1003))
         
-        processes = []
-
         for i in range(NUMBER_OF_TRIALS):
             log_tmp = os.path.join(log_dir, mode, f'experiment{i}')
             if mode == 'Original':
@@ -104,8 +103,8 @@ def run_comparision(log_dir, teacher_dir, modes, t):
                                  small_base_cenv_fn, process_name])
             p.start()
             processes.append(p)
-        for p in processes:
-            p.join()
+    for p in processes:
+        p.join()
     print(f'[run_comparison] time elapsed: {time.time() - start_time}')
 
 
