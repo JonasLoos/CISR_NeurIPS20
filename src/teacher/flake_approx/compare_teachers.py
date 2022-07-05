@@ -151,12 +151,14 @@ def print_latex_table(mu, std):
 
 
 if __name__ == '__main__':
+    # initialize paths
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                os.pardir, os.pardir, os.pardir, 'results',
                                'flake')
     log_dir = os.path.join(results_dir, 'teacher_comparison')
     base_teacher_dir = os.path.join(results_dir, 'teacher_training')
 
+    # parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--plot', action='store_true', default=False,
                         help='Plot the comparison for the pre-trained teachers against the baselines')
@@ -167,6 +169,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # load teachers
     teachers = []
     for t in args.teacher_dir:
         if os.path.isdir(os.path.join(base_teacher_dir, t)):
@@ -177,26 +180,25 @@ if __name__ == '__main__':
     if len(teachers) == 0:
         teachers = ['03_06_20__11_46_57']
 
-    if args.plot:
-        # plot teachers
+    if args.evaluate:
+        # evaluate teachers
         for t in teachers:
             print(f'Evaluating teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
             run_comparision(log_dir, teacher_dir)
 
-        metrics_statistics = np.array([
-            get_metric_summary(log_dir, os.path.join(base_teacher_dir, t))
-            for t in teachers
-        ])
-
-        # Print table
-        mu = metrics_statistics.mean(axis=0)
-        std = metrics_statistics.std(axis=0) / np.sqrt(metrics_statistics.shape[0])
-        print_latex_table(mu, std)
-
-    if args.evaluate:
-        # evaluate teachers
+    if args.plot:
+        # plot teachers
         for t in teachers:
             print(f'Plotting teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
             plot_comparison(log_dir, teacher_dir)
+
+        # Print table
+        metrics_statistics = np.array([
+            get_metric_summary(log_dir, os.path.join(base_teacher_dir, t))
+            for t in teachers
+        ])
+        mu = metrics_statistics.mean(axis=0)
+        std = metrics_statistics.std(axis=0) / metrics_statistics.shape[0]**.5
+        print_latex_table(mu, std)
