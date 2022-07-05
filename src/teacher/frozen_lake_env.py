@@ -202,7 +202,7 @@ class SmallFrozenNonStationaryBandits(SmallFrozenTeacherEnv):
         if self.old_action is None:  # Happens upon reset
             teacher_reward = 0
         else:
-            if np.isnan(self.previous_returns_interventions[self.old_action]):
+            if np.isnan(self.previous_returns_interventions[self.old_action]):  # type: ignore
                 teacher_reward = np.nan  # Flag value that is not stored by the teacher
             else:
                 teacher_reward = student_training_r - \

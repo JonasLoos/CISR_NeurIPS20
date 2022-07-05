@@ -72,7 +72,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None):
     f, axes = plt.subplots(1, 3)
     metrics = [successes, averarge_returns, teacher_rewards]
     titles = ['successes', 'student ret', 'teacher ret']
-    for a, metric, title in zip(axes, metrics, titles):
+    for a, metric, title in zip(axes, metrics, titles):  # type: ignore
         if title == 'teacher ret':
             a.plot(np.cumsum(metric))
         else:
@@ -104,12 +104,12 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
             except FileNotFoundError:
                     pass
     if metric == 'teacher_rewards':
-        returns = np.cumsum(np.asarray(returns)[:, :], axis=1)
+        returns = np.cumsum(np.array(returns)[:, :], axis=1)
     else:
-        returns = np.asarray(returns)
+        returns = np.array(returns)
     mu, std = np.mean(returns, axis=0), np.std(returns, axis=0)
     print(f'{log_dir.split("/")[-1]} - {metric} final mean -> {mu[-1]}')
-    std = std / np.sqrt(returns.shape[0])
+    std = std / np.sqrt(returns.shape[0])  # type: ignore
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
     ax.plot(mu, label=label)
@@ -164,7 +164,7 @@ class HalfwayTeacher(object):
         self.actions = action_sequence
 
     def predict(self, obs, params=None):
-        action = int(np.ceil(0.5 * params['n_steps']))
+        action = int(np.ceil(0.5 * params['n_steps']))  # type: ignore
         return self.actions[action], None
 
 

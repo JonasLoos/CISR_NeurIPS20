@@ -392,12 +392,11 @@ class TeacherEnv(gym.Env):
                 norm_rewards = (norm_rewards / lengths - rmin)
 
             _, taus, _, avg_constraint = self.intervention_evaluator.get_interventions_info()
-            avg_constraint = np.asarray(avg_constraint)
+            avg_constraint = np.array(avg_constraint)
             norm_constraint_values = constraint_values.copy()
-            norm_constraint_values += np.asarray(taus)[None, :, :]
+            norm_constraint_values += np.array(taus)[None, :, :]
             if np.any(~avg_constraint):
-                norm_constraint_values[:, ~avg_constraint, :] /= \
-                    lengths[:, None, None]
+                norm_constraint_values[:, ~avg_constraint, :] /= lengths[:, None, None]
         else:
             norm_rewards = rewards
             norm_constraint_values = constraint_values

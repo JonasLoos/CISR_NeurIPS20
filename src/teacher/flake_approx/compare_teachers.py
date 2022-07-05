@@ -1,15 +1,15 @@
-import numpy as np
 import os
 from functools import partial
-import matplotlib.pyplot as plt
 import multiprocessing as mp
 import time
-from tabulate import tabulate
 import argparse
+import importlib
+import numpy as np
+import matplotlib.pyplot as plt
+from tabulate import tabulate
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
 from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES
-import importlib
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
@@ -149,14 +149,14 @@ def print_latex_table(mu, std):
     for mu_row, std_row in zip(mu, std):
         line = []
         for j in range(len(mu_row)):
-            line.append(f'${mu_row[j]:.3f}\pm{std_row[j]:.3f}$')
+            line.append(f'${mu_row[j]:.3f}\\pm{std_row[j]:.3f}$')
         table.append(line)
     print()
     print(tabulate(table, tablefmt="latex_raw"))
     print()
 
 
-if __name__ == '__main__':
+def main():
     # initialize paths
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                os.pardir, os.pardir, os.pardir, 'results',
@@ -212,3 +212,6 @@ if __name__ == '__main__':
         mu = metrics_statistics.mean(axis=0)
         std = metrics_statistics.std(axis=0) / metrics_statistics.shape[0]**.5
         print_latex_table(mu, std)
+
+if __name__ == '__main__':
+    main()
