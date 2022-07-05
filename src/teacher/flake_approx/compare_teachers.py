@@ -70,7 +70,7 @@ def run_comparision(log_dir, teacher_dir, modes, t):
     log_dir = os.path.join(log_dir, t)
 
     start_time = time.time()
-    processes = []
+    process_pool = mp.Pool()
     for mode in modes:
         if mode == 'SR2':
             model = OpenLoopTeacher([1])
@@ -98,13 +98,11 @@ def run_comparision(log_dir, teacher_dir, modes, t):
             else:
                 teacher_env = env_f
             process_name = f'{mode}-{i}'
-            p = mp.Process(target=deploy_policy,
+            process_pool.apply_async(deploy_policy,
                            args=[model, log_tmp, teacher_env,
                                  small_base_cenv_fn, process_name])
-            p.start()
-            processes.append(p)
-    for p in processes:
-        p.join()
+    process_pool.close()
+    process_pool.join()
     print(f'[run_comparison] time elapsed: {time.time() - start_time}')
 
 
