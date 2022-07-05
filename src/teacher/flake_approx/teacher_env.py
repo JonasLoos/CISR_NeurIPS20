@@ -20,10 +20,11 @@ import tensorflow as tf
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
+from src.teacher.flake_approx.config import MAP_NAME
+
+
 __all__ = ['create_teacher_env', 'small_base_cenv_fn']
 
-
-world_map = MAPS['8x8']
 
 
 def constraint(info=None, **kwargs):
@@ -33,7 +34,7 @@ def constraint(info=None, **kwargs):
 def small_base_env_fn():
     '''Base MDP'''
     return FrozenLakeEnvCustomMap(
-        desc = world_map,
+        desc = MAPS[MAP_NAME],
         not_slipping_prob = 0.8,
         base_r_mapping=None,
         timeout=200
@@ -70,14 +71,14 @@ def make_base_small_cenvs():
         interventions.append(
             create_intervention(
                 small_base_cenv_fn,
-                [create_intervention_from_map(add_teacher(world_map, d))],
+                [create_intervention_from_map(add_teacher(MAPS[MAP_NAME], d))],
                 [t], b, use_vec=True, avg_constraint=avg)
         )
 
     assert callable(interventions[0])
     test_env = create_intervention(
         small_base_cenv_fn,
-        [create_intervention_from_map(add_teacher(world_map))],
+        [create_intervention_from_map(add_teacher(MAPS[MAP_NAME]))],
         [0.0], 0, avg_constraint=True
     )
 
