@@ -7,7 +7,7 @@ other files should import the constants defined here
 
 # Map name from src/envs/frozen_lake/frozen_maps.py
 # The paper used 'small'
-MAP_NAME = '5x5_simple'
+MAP_NAME = 'small'
 
 
 # Number of trials (students trained per mode) to get a good average during mode evaluation
