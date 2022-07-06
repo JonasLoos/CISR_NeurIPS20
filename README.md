@@ -6,6 +6,8 @@
 
 This repository contains the implementation of the Curriculum Induction for Safe Reinforcement learning (CISR) framework and the code to reproduce the experiments presented in the paper ["Safe Reinforcement Learning via Curriculum Induction", Matteo Turchetta, Andrey Kolobov, Shital Shah, Andreas Krause and Alekh Agarwal](https://arxiv.org/abs/2006.12136).
 
+It was modified and extended as part of the save-rl project at TU Berlin in Summer 2022.
+
 ## Installation
 
 We recommend Ubuntu 18+ and Python 3.7+ installation using [Anaconda](https://www.anaconda.com/products/individual#downloads).
@@ -72,6 +74,8 @@ To explicitly specify which teachers to compare, use the teacher\_policy flag
 python src/teacher/flake_approx/compare_teachers.py --plot --teacher_policy Trained SR1 SR2 HR Original Bandit
 ```
 
+To adjust further settings like map size or curriculum steps, modify the `src/teacher/flake_approx/config.py` file.
+
 #### Evaluate
 
 To compare the trained teacher against the baselines, it is sufficient to run the compare\_teachers.py script with the --evaluate flag. Similar to the plotting case, the --teacher_dir and --teacher_policy flags can be used to specify the teacher and policy to run the comparison for.
@@ -122,7 +126,7 @@ python src/teacher/lunar_lander/teacher_learning.py
 
 The trained teacher as well as some information about the training process will be stored in ./results/flake/teacher_training in a directory named after the date and time when the training process is performed. If you want to evaluate and/or get the evaluation statistics table of this newly trained teacher, it is sufficient to pass the name of this directory as an argument to the compare\_teachers.py script (see above).
 
-## Citation
+## Citation (original paper)
 
 Please refer to paper [Safe Reinforcement Learning via Curriculum Induction)](https://arxiv.org/abs/2006.12136) for further details. Please cite this as:
 

@@ -2,13 +2,12 @@
 Config file for the frozen lake teacher
 
 Other files should import the constants defined here.
-Some settings can also be specified by command line, which takes priority.
+Some settings can additionally be specified by command line, which takes priority.
 '''
 
 
 # The name of the folder where the comparison results (from evaluate and plot) should be stored
 # If it is empty, a name is created from the settings
-# WIP
 COMPARISON_FOLDER = ''
 
 
@@ -36,5 +35,4 @@ INTERVENTION_MODES = ['Trained', 'Incremental', 'Original']
 
 # Teacher to use (from results/flake/teacher_training)
 # The paper default was ['03_06_20__11_46_57']
-# WIP
 TEACHER_DIRS = ['03_06_20__11_46_57']
