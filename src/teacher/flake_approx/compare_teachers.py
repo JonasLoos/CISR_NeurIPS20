@@ -173,8 +173,9 @@ def main():
     base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                os.pardir, os.pardir, os.pardir)
     results_dir = os.path.join(base_dir, 'results', 'flake')
-    log_dir = os.path.join(results_dir, 'teacher_comparison', comparison_folder)
     base_teacher_dir = os.path.join(results_dir, 'teacher_training')
+    log_dir = os.path.join(results_dir, 'teacher_comparison', comparison_folder)
+    os.makedirs(log_dir, exist_ok=True)
 
     # check and backup config file
     config_file_path = os.path.join(base_dir, 'src', 'teacher', 'flake_approx', 'config.py')
