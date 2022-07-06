@@ -91,26 +91,38 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
 
 
 def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legend=True):
+    # setup figure and axis
     if fig is None:
         fig = plt.figure()
     if ax is None:
         ax = plt.gca()
+
+    # load data
     returns = []
     for subdir in os.listdir(log_dir):
         if os.path.isdir(os.path.join(log_dir, subdir)):
             try:
                 data = np.load(os.path.join(log_dir, subdir, 'results.npz'))
-                ret = data[metric]
-                returns.append(ret)
+                returns.append(data[metric])
             except FileNotFoundError:
                     pass
+    returns = np.array(returns)
+
+    # check if data was found
+    if len(returns) == 0:
+        print(f'[plot_deployment_metric] Couldn\'t find entries for {metric} in {os.path.basename(log_dir)}')
+        return np.nan
+
+    # fix data for teacher_rewards
     if metric == 'teacher_rewards':
-        returns = np.cumsum(np.array(returns)[:, :], axis=1)
-    else:
-        returns = np.array(returns)
-    mu, std = np.mean(returns, axis=0), np.std(returns, axis=0)
+        returns = np.cumsum(returns, axis=1)
+
+    # compute mean and std
+    mu = np.mean(returns, axis=0)
     print(f'{log_dir.split("/")[-1]} - {metric} final mean -> {mu[-1]}')
-    std = std / np.sqrt(returns.shape[0])  # type: ignore
+    std = np.std(returns, axis=0) / np.sqrt(returns.shape[0])  # type: ignore
+
+    # plot
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
     ax.plot(mu, label=label)
