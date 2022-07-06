@@ -266,7 +266,7 @@ class StepsEpisodeTeacher(object):
         return self.actions[steps_per_episode], None
 
 
-class StepsTeacherTeacher(object):
+class StepsTeacher(object):
     """
     Teacher that goes back the current teacher steps in the episode
     """
