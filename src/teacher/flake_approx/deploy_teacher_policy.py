@@ -133,7 +133,8 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     ax.plot(mu, label=label)
     ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
     if legend:
-        plt.legend(frameon=False, loc='best')
+        plt.legend(bbox_to_anchor=(0,-0.4,1,0.2), loc="upper left",
+                mode="expand", borderaxespad=0, ncol=2, frameon=False)
     # Ticks
     plt.tick_params(axis='both',
                     which='both',

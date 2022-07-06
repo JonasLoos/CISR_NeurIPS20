@@ -21,8 +21,7 @@ from src.utils.plotting import cm2inches, set_figure_params
 
 
 def plot_comparison(log_dir, modes, t):
-    text_width = cm2inches(13.968)  # Text width in cm
-    figsize = (text_width / 2, text_width / 3.5)
+    figsize = (3.5, 2.8)
     set_figure_params(fontsize=7)
 
     # Fix plotting when using command line on Mac
@@ -55,9 +54,8 @@ def plot_comparison(log_dir, modes, t):
              metric_summary=metric_summary)
     for j, metric_name in enumerate(metric):
         plt.figure(j)
-        plt.tight_layout(pad=0.2)
         plt.savefig(os.path.join(log_dir, metric_name + '.pdf'), format='pdf',
-                    transparent=True)
+                    bbox_inches='tight')
         plt.close(j)
 
 
