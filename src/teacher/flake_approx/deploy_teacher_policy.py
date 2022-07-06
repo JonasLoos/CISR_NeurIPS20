@@ -223,7 +223,6 @@ class EvaluationTeacher(object):
         evaluation_logger = params['logger']
         info = evaluation_logger.get_counters()
         lengths = info['lengths']
-        print(lengths)
         return self.actions[lengths[-1]], None
 
 
@@ -242,7 +241,7 @@ class ExpTeacher(object):
         return self.actions[action], None
 
 
-class StepsTeacher(object):
+class StepsEpisodeTeacher(object):
     """
     Teacher that goes back the steps per episode
     """
@@ -250,9 +249,20 @@ class StepsTeacher(object):
         self.actions = action_sequence
 
     def predict(self, obs, params=None):
-        steps = params['steps_per_episode']
-        print(steps)
-        return self.actions[steps], None
+        steps_per_episode = params['steps_per_episode']
+        return self.actions[steps_per_episode], None
+
+
+class StepsTeacherTeacher(object):
+    """
+    Teacher that goes back the current teacher steps in the episode
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        steps_teacher_episode = params['steps_teacher_episode']
+        return self.actions[steps_teacher_episode], None
 
 
 if __name__ == '__main__':
