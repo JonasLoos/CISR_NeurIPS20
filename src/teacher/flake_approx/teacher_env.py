@@ -1,10 +1,8 @@
-from typing import Callable
 import numpy as np
-
+import tensorflow as tf
 from stable_baselines import PPO2
 from stable_baselines.common.policies import CnnPolicy
 from stable_baselines.a2c.utils import conv, linear, conv_to_fc
-
 
 from src.envs import CMDP, FrozenLakeEnvCustomMap
 from src.envs.frozen_lake.frozen_maps import MAPS
@@ -15,12 +13,10 @@ from src.teacher import FrozenLakeEvaluationLogger, \
 from src.teacher.frozen_lake_env import SmallFrozenTrainingObservation, SmallFrozenNonStationaryBandits
 from src.envs.frozen_lake.utils import create_intervention_from_map, \
     OptimalAgent, add_teacher
+from src.teacher.flake_approx.config import MAP_NAME, N_STEPS
 
-import tensorflow as tf
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-
-from src.teacher.flake_approx.config import MAP_NAME, N_STEPS
 
 
 __all__ = ['create_teacher_env', 'small_base_cenv_fn']

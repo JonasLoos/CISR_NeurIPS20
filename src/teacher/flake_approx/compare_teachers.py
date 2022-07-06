@@ -1,16 +1,17 @@
 import os
 from functools import partial
 import multiprocessing as mp
+import shutil
 import time
 import argparse
 import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
-from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES, NUMBER_OF_TRIALS
-
+from src.teacher.flake_approx.config import COMPARISON_FOLDER, MAP_NAME, INTERVENTION_MODES, N_STEPS, NUMBER_OF_TRIALS, TEACHER_DIRS
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
@@ -154,13 +155,6 @@ def print_latex_table(mu, std):
 
 
 def main():
-    # initialize paths
-    results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               os.pardir, os.pardir, os.pardir, 'results',
-                               'flake')
-    log_dir = os.path.join(results_dir, 'teacher_comparison')
-    base_teacher_dir = os.path.join(results_dir, 'teacher_training')
-
     # parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--plot', action='store_true', default=False,
@@ -174,6 +168,27 @@ def main():
 
     args = parser.parse_args()
 
+    # initialize paths
+    comparison_folder = COMPARISON_FOLDER or f'{MAP_NAME}_{NUMBER_OF_TRIALS}trials_{N_STEPS}steps'
+    base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               os.pardir, os.pardir, os.pardir)
+    results_dir = os.path.join(base_dir, 'results', 'flake')
+    log_dir = os.path.join(results_dir, 'teacher_comparison', comparison_folder)
+    base_teacher_dir = os.path.join(results_dir, 'teacher_training')
+
+    # check and backup config file
+    config_file_path = os.path.join(base_dir, 'src', 'teacher', 'flake_approx', 'config.py')
+    config_file_path_dest = os.path.join(log_dir, 'used_config.py')
+    if os.path.exists(config_file_path_dest):
+        with open(config_file_path) as a, open(config_file_path_dest) as b:
+            if a.read() != b.read():
+                print('The current config file differs from existing config file in the results folder:')
+                print(f' -> {config_file_path_dest}')
+                print('To continue, remove the existing config file in the results folder.')
+                return
+    else:
+        shutil.copyfile(config_file_path, config_file_path_dest)
+
     # load teachers
     teachers = []
     for t in args.teacher_dir:
@@ -183,7 +198,7 @@ def main():
             print(f'Could not find teacher {t} in {base_teacher_dir}')
     # Use default teacher is none is given
     if len(teachers) == 0:
-        teachers = ['03_06_20__11_46_57']
+        teachers = TEACHER_DIRS
 
     # Get teachers and use config file by default
     modes = args.teacher_policy
@@ -206,7 +221,7 @@ def main():
 
         # plot map
         plot_map(MAPS[MAP_NAME], legend=True)
-        plt.savefig(os.path.join(log_dir, MAP_NAME, 'map.pdf'))
+        plt.savefig(os.path.join(log_dir, 'map.pdf'))
 
         # Print table
         metrics_statistics = np.array([
@@ -216,6 +231,8 @@ def main():
         mu = metrics_statistics.mean(axis=0)
         std = metrics_statistics.std(axis=0) / metrics_statistics.shape[0]**.5
         print_latex_table(mu, std)
+
+
 
 if __name__ == '__main__':
     main()

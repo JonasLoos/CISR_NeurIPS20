@@ -1,4 +1,5 @@
 from collections import Counter
+from matplotlib.colors import LinearSegmentedColormap
 
 import numpy as np
 from matplotlib import pyplot as plt, patches as mpatches
@@ -286,11 +287,12 @@ def plot_map(base_map : "list[str]", legend : bool = False) -> None:
                    left=False,
                     labelbottom=False,
                     labelleft=False)
-    im = plt.imshow(map_to_plot)
+    labels = ['Safe', 'Goal', 'Danger', 'Start', 'Teacher']
+    colors = ['lightskyblue', 'green', 'navy', 'red', 'yellow']
+    cmap = LinearSegmentedColormap.from_list('', colors)
+    plt.imshow(map_to_plot, cmap=cmap)
     if legend:
         values = np.unique(map_to_plot.ravel())
-        colors = [im.cmap(im.norm(value)) for value in values]
-        labels = ['Safe', 'Goal', 'Danger', 'Start', 'Teacher']
         patches = [
             mpatches.Patch(color=colors[i], label=labels[i])
             for i in range(len(values))]
