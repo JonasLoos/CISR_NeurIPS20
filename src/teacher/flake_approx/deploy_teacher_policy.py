@@ -36,7 +36,12 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
         if not isinstance(policy, (OpenLoopTeacher, NonStationaryBanditPolicy, SingleSwitchPolicy)):
             params = dict(
                 n_steps = n_steps,
-                learning_steps = teacher_env.learning_steps
+                learning_steps = teacher_env.learning_steps,
+                steps_teacher_episode = teacher_env.steps_teacher_episode,
+                student_training_episodes_current_env = teacher_env.student_training_episodes_current_env,
+                i = i,
+                logger = teacher_env.evaluation_logger,
+                steps_per_episode = teacher_env.steps_per_episode
             )
             a, _ = policy.predict(obs_t, params=params)
         else:
@@ -169,16 +174,107 @@ class IncrementalTeacher(object):
         return self.actions[action], None
 
 
-class HalfwayTeacher(object):
+class DoubleIncrementalTeacher(object):
     """
-    Halfway heuristic teacher that goes back half of the number of steps
+    Incremental heuristic teacher that increases the buffer size on each intervention
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        action = self.interventions_counter
+        self.interventions_counter += 1
+        return self.actions[2 * action], None
+
+
+class HalfIncrementalTeacher(object):
+    """
+    Incremental heuristic teacher that increases the buffer size on each intervention
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        action = self.interventions_counter
+        self.interventions_counter += 1
+        return self.actions[int(np.ceil(0.5 * action))], None
+
+
+class TwentyPercentTeacher(object):
+    """
+    Heuristic teacher that goes back twenty percent of the number of student training episodes in the current env
     """
     def __init__(self, action_sequence):
         self.actions = action_sequence
 
     def predict(self, obs, params=None):
-        action = int(np.ceil(0.5 * params['learning_steps']))  # type: ignore
+        action = int(np.ceil(0.2 * params['student_training_episodes_current_env']))
         return self.actions[action], None
+
+
+class RandomTeacher(object):
+    """
+    Random teacher that goes back a random number of steps
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        upper_limit = params['steps_teacher_episode']
+        action = np.random.randint(1, upper_limit + 2)
+        return self.actions[action], None
+
+
+class EvaluationTeacher(object):
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        evaluation_logger = params['logger']
+        info = evaluation_logger.get_counters()
+        lengths = info['lengths']
+        return self.actions[lengths[-1]], None
+
+
+class ExpTeacher(object):
+    """
+    Teacher that goes exponentially with the number of interventions
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        intervention = self.interventions_counter
+        action = int(np.ceil(1.3 ** intervention))
+        self.interventions_counter += 1
+        return self.actions[action], None
+
+
+class StepsEpisodeTeacher(object):
+    """
+    Teacher that goes back the steps per episode
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        steps_per_episode = params['steps_per_episode']
+        return self.actions[steps_per_episode], None
+
+
+class StepsTeacherTeacher(object):
+    """
+    Teacher that goes back the current teacher steps in the episode
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        steps_teacher_episode = params['steps_teacher_episode']
+        return self.actions[steps_teacher_episode], None
 
 
 if __name__ == '__main__':

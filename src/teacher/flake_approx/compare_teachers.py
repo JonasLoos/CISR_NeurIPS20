@@ -169,6 +169,8 @@ def main():
                         help='Run the comparison between a pre-trained teacher and the baselines')
     parser.add_argument("--teacher_dir", nargs="*", type=str, default=[],
                         help='Directory(ies) containing the teacher to plot or evaluate (assumed to be in result/flake/teacher_training)')
+    parser.add_argument("--teacher_policy", nargs="*", type=str, default=[],
+                        help='Name(s) of the teacher(s) to plot or evaluate')
 
     args = parser.parse_args()
 
@@ -183,23 +185,28 @@ def main():
     if len(teachers) == 0:
         teachers = ['03_06_20__11_46_57']
 
+    # Get teachers and use config file by default
+    modes = args.teacher_policy
+    if len(modes) == 0:
+        modes = INTERVENTION_MODES
+
     if args.evaluate:
         # evaluate teachers
         for t in teachers:
             print(f'Evaluating teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
-            run_comparision(log_dir, teacher_dir, INTERVENTION_MODES, t)
+            run_comparision(log_dir, teacher_dir, modes, t)
 
     if args.plot:
         # plot teachers
         for t in teachers:
             print(f'Plotting teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
-            plot_comparison(log_dir, INTERVENTION_MODES, t)
+            plot_comparison(log_dir, modes, t)
 
         # plot map
         plot_map(MAPS[MAP_NAME], legend=True)
-        plt.savefig(os.path.join(log_dir, 'map.pdf'))
+        plt.savefig(os.path.join(log_dir, MAP_NAME, 'map.pdf'))
 
         # Print table
         metrics_statistics = np.array([

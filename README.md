@@ -66,9 +66,15 @@ The following command plots the comparison for all the available teachers
 python src/teacher/flake_approx/compare_teachers.py --plot --teacher_dir 03_06_20__11_46_57 03_06_20__12_20_36 02_06_20__11_46_57
 ```
 
+To explicitly specify which teachers to compare, use the teacher\_policy flag
+
+```bash
+python src/teacher/flake_approx/compare_teachers.py --plot --teacher_policy Trained SR1 SR2 HR Original Bandit
+```
+
 #### Evaluate
 
-To compare the trained teacher against the baselines, it is sufficient to run the compare\_teachers.py script with the --evaluate flag. Similar to the plotting case, the --teacher_dir flag can be used to specify the teacher to run the comparison for.
+To compare the trained teacher against the baselines, it is sufficient to run the compare\_teachers.py script with the --evaluate flag. Similar to the plotting case, the --teacher_dir and --teacher_policy flags can be used to specify the teacher and policy to run the comparison for.
 
 #### Train
 
