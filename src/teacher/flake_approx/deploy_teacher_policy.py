@@ -59,7 +59,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
         successes[i], averarge_returns[i] = succ, avg_r
         training_failures[i] = teacher_env.student_failures
 
-        print(f'[process {process_name}] training step {i+1}/{n_steps} -> success: {succ:.4f}  avg_ret: '
+        print(f'process {process_name:13} - training step {i+1}/{n_steps} -> success: {succ:.4f}  avg_ret: '
               f'{avg_r:.4f}  avg_ret_succ: {avg_r_succ:.4f}  action {a}')
         plot_trajectories(traj, env.desc.shape)
         plt.savefig(os.path.join(log_dir, f'trajectories{i}.pdf'),format='pdf')

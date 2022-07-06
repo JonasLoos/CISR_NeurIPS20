@@ -103,7 +103,7 @@ def run_comparision(log_dir, teacher_dir, modes, t):
                                  small_base_cenv_fn, process_name])
     process_pool.close()
     process_pool.join()
-    print(f'[run_comparison] time elapsed: {time.time() - start_time}')
+    print(f'[run_comparison] time elapsed: {time.time() - start_time:.2f} s')
 
 
 def run_bandits(log_dir):
@@ -133,7 +133,7 @@ def run_bandits(log_dir):
             processes.append(p)
         for p in processes:
             p.join()
-    print(f'[run_bandits] time elapsed: {time.time() - start_time}')
+    print(f'[run_bandits] time elapsed: {time.time() - start_time:.2f} s')
 
 
 def get_metric_summary(log_dir, t):
