@@ -206,7 +206,7 @@ def main():
 
         # plot map
         plot_map(MAPS[MAP_NAME], legend=True)
-        plt.savefig(os.path.join(log_dir, MAPS[MAP_NAME], 'map.pdf'))
+        plt.savefig(os.path.join(log_dir, MAP_NAME, 'map.pdf'))
 
         # Print table
         metrics_statistics = np.array([

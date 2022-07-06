@@ -75,7 +75,7 @@ def main(n_interv : int = 3):
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                os.pardir, os.pardir, os.pardir, 'results',
                                'flake')
-    base_dir = os.path.join(results_dir, 'teacher_training', MAPS[MAP_NAME])
+    base_dir = os.path.join(results_dir, 'teacher_training', MAP_NAME)
     os.makedirs(base_dir, exist_ok=True)
 
     my_bo = BayesianOptimization(bo_objective,
