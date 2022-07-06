@@ -214,15 +214,15 @@ def main():
             run_comparision(log_dir, teacher_dir, modes, t)
 
     if args.plot:
+        # plot map
+        plot_map(MAPS[MAP_NAME], legend=True)
+        plt.savefig(os.path.join(log_dir, 'map.pdf'))
+
         # plot teachers
         for t in teachers:
             print(f'Plotting teacher {t}')
             teacher_dir = os.path.join(base_teacher_dir, t)
             plot_comparison(log_dir, modes, t)
-
-        # plot map
-        plot_map(MAPS[MAP_NAME], legend=True)
-        plt.savefig(os.path.join(log_dir, 'map.pdf'))
 
         # Print table
         metrics_statistics = np.array([
