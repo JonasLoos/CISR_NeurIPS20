@@ -1,8 +1,15 @@
 '''
 Config file for the frozen lake teacher
 
-other files should import the constants defined here
+Other files should import the constants defined here.
+Some settings can also be specified by command line, which takes priority.
 '''
+
+
+# The name of the folder where the comparison results (from evaluate and plot) should be stored
+# If it is empty, a name is created from the settings
+# WIP
+COMPARISON_FOLDER = ''
 
 
 # Map name from src/envs/frozen_lake/frozen_maps.py
@@ -26,3 +33,9 @@ N_STEPS = 10
 # The paper used ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
 # Custom modes: ['Halfway', 'Incremental']
 INTERVENTION_MODES = ['Halfway', 'Trained', 'Incremental', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+
+
+# Teacher to use (from results/flake/teacher_training)
+# The paper default was ['03_06_20__11_46_57']
+# WIP
+TEACHER_DIRS = ['03_06_20__11_46_57']

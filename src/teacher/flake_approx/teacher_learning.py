@@ -5,6 +5,7 @@ import numpy as np
 import GPy
 from GPyOpt.methods import BayesianOptimization
 from GPyOpt.models import GPModel
+from src.teacher.flake_approx.config import MAP_NAME
 from src.teacher.frozen_single_switch_utils import evaluate_single_switch_policy, \
     SingleSwitchPolicy
 from src.teacher.flake_approx.teacher_env import create_teacher_env, \
@@ -70,11 +71,10 @@ def main(n_interv : int = 3):
         raise ValueError(f'Unexpected value for n_interv. Expected 2 or 3, but got {n_interv}')
 
     # Logging dir
-    exp_starting_time = datetime.now().strftime('%d_%m_%y__%H_%M_%S')
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                os.pardir, os.pardir, os.pardir, 'results',
                                'flake')
-    base_dir = os.path.join(results_dir, 'teacher_training', exp_starting_time)
+    base_dir = os.path.join(results_dir, 'teacher_training', MAP_NAME)
     os.makedirs(base_dir, exist_ok=True)
 
     my_bo = BayesianOptimization(bo_objective,
@@ -91,13 +91,13 @@ def main(n_interv : int = 3):
     my_bo.model.model['Gaussian_noise.variance'].set_prior(
         GPy.priors.Gamma.from_EV(0.01, 0.1))
 
-    t = time.time()
+    start_time = time.time()
     my_bo.run_optimization(20,
                            report_file=os.path.join(base_dir, 'bo_report.txt'),
                            evaluations_file=os.path.join(base_dir,
                                                          'bo_evaluations.csv'),
                            models_file=os.path.join(base_dir, 'bo_model.csv'))
-    print(f'Optimization complete in {time.time() - t}')
+    print(f'Optimization complete in {time.time() - start_time:.2f} s')
     print(f'Optimal threshold: {my_bo.x_opt}')
     print(f'Optimal return: {my_bo.fx_opt}')
     np.savez(os.path.join(base_dir, 'solution.npz'), xopt=my_bo.x_opt,
