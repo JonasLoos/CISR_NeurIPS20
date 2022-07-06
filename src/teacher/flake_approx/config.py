@@ -14,7 +14,7 @@ COMPARISON_FOLDER = ''
 
 # Map name from src/envs/frozen_lake/frozen_maps.py
 # The paper used 'small'
-MAP_NAME = '16x16'
+MAP_NAME = 'small'
 
 
 # Number of trials (students trained per mode) to get a good average during mode evaluation
