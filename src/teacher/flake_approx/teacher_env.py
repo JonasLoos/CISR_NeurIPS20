@@ -20,7 +20,7 @@ import tensorflow as tf
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
-from src.teacher.flake_approx.config import MAP_NAME
+from src.teacher.flake_approx.config import MAP_NAME, N_STEPS
 
 
 __all__ = ['create_teacher_env', 'small_base_cenv_fn']
@@ -152,7 +152,7 @@ def create_teacher_env(new_br_kwargs={}, new_online_kwargs={},
             avg_constraint = True
         )]
     learning_steps = 4800 * 2
-    time_steps_lim = learning_steps * 10
+    time_steps_lim = learning_steps * N_STEPS
     test_episode_timeout = 200
     test_episode_number = 5
     if obs_from_training:

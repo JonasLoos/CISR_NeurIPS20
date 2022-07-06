@@ -5,7 +5,6 @@ import numpy as np
 import GPy
 from GPyOpt.methods import BayesianOptimization
 from GPyOpt.models import GPModel
-from src.envs.frozen_lake.frozen_maps import MAPS
 from src.teacher.flake_approx.config import MAP_NAME
 from src.teacher.frozen_single_switch_utils import evaluate_single_switch_policy, \
     SingleSwitchPolicy
@@ -92,13 +91,13 @@ def main(n_interv : int = 3):
     my_bo.model.model['Gaussian_noise.variance'].set_prior(
         GPy.priors.Gamma.from_EV(0.01, 0.1))
 
-    t = time.time()
+    start_time = time.time()
     my_bo.run_optimization(20,
                            report_file=os.path.join(base_dir, 'bo_report.txt'),
                            evaluations_file=os.path.join(base_dir,
                                                          'bo_evaluations.csv'),
                            models_file=os.path.join(base_dir, 'bo_model.csv'))
-    print(f'Optimization complete in {time.time() - t}')
+    print(f'Optimization complete in {time.time() - start_time:.2f} s')
     print(f'Optimal threshold: {my_bo.x_opt}')
     print(f'Optimal return: {my_bo.fx_opt}')
     np.savez(os.path.join(base_dir, 'solution.npz'), xopt=my_bo.x_opt,
