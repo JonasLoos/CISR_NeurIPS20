@@ -38,7 +38,8 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
                 n_steps = n_steps,
                 learning_steps = teacher_env.learning_steps,
                 steps_teacher_episode = teacher_env.steps_teacher_episode,
-                student_training_episodes_current_env = teacher_env.student_training_episodes_current_env
+                student_training_episodes_current_env = teacher_env.student_training_episodes_current_env,
+                i = i
             )
             a, _ = policy.predict(obs_t, params=params)
         else:
@@ -229,6 +230,18 @@ class All2Teacher(object):
 
     def predict(self, obs, params=None):
         upper_limit = params['steps_teacher_episode']
+        return self.actions[upper_limit], None
+
+
+class All3Teacher(object):
+    """
+    Teacher that goes back all the way (HR)
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+
+    def predict(self, obs, params=None):
+        upper_limit = params['i']
         return self.actions[upper_limit], None
 
 
