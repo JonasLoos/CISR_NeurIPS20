@@ -30,7 +30,10 @@ N_STEPS = 10
 
 
 # Interventions / modes
-# The paper used ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+# The paper used the following modes
+ORIGINAL_INTERVENTION_MODES= ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+
+
 # Custom modes: ['Halfway', 'Incremental']
 INTERVENTION_MODES = ['Halfway', 'Trained', 'Incremental', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
 

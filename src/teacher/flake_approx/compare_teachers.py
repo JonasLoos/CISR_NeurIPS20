@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
-from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES, NUMBER_OF_TRIALS
+from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES, NUMBER_OF_TRIALS, ORIGINAL_INTERVENTION_MODES
 
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
@@ -70,10 +70,10 @@ def run_comparision(log_dir, teacher_dir, modes, t):
     start_time = time.time()
     process_pool = mp.Pool()
     for mode in modes:
-        if mode == 'SR2':
-            model = OpenLoopTeacher([1])
-        elif mode in ['SR1', 'Original']:
+        if mode in ['SR2', 'Original']:
             model = OpenLoopTeacher([0])
+        elif mode == 'SR1':
+            model = OpenLoopTeacher([1])
         elif mode == 'HR':
             model = OpenLoopTeacher([2])
         elif mode == 'Bandit':
