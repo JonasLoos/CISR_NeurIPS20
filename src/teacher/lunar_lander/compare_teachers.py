@@ -2,6 +2,7 @@ import numpy as np
 import os
 import time
 from tabulate import tabulate
+from src.teacher.flake_approx.compare_teachers import plot_comparison
 from src.teacher.lunar_lander.deploy_teacher_policy import \
     evaluate_parallel
 from src.teacher.lunar_lander.teacher_env import SingleSwitchPolicy
@@ -103,6 +104,8 @@ if __name__ == '__main__':
     base_teacher_dir = os.path.join(results_dir, 'teacher_training')
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--plot', action='store_true', default=False,
+                        help='Plot the comparison for the pre-trained teachers against the baselines')
     parser.add_argument('--analyze', action='store_true', default=True,
                         help='Get the statistics of the comparison for the pre-trained teachers against the baselines')
     parser.add_argument('--evaluate', action='store_true', default=False,
@@ -152,6 +155,7 @@ if __name__ == '__main__':
             teachers.append(t)
         else:
             print(f'Could not find teacher {t} in {base_teacher_dir}')
+    
     # Use default teacher is none is given
     if len(teachers) == 0:
         teachers = ['03_06_20__18_24_43']
@@ -159,28 +163,41 @@ if __name__ == '__main__':
     teachers_to_analyze = teachers if args.analyze else []
     teachers_to_run = teachers if args.evaluate else []
 
-    for t in teachers_to_run:
-        print(f'Evaluating teacher {t}')
-        teacher_dir = os.path.join(base_teacher_dir, t)
-        run_comparision(log_dir, teacher_dir, teacher_env_kwargs)
+    if args.evaluate:
+        # evaluate teachers
+        for t in teachers_to_run:
+            print(f'Evaluating teacher {t}')
+            teacher_dir = os.path.join(base_teacher_dir, t)
+            run_comparision(log_dir, teacher_dir, teacher_env_kwargs)
 
-    for t in teachers_to_analyze:
-        print(f'Analyzing teacher {t}')
-        teacher_dir = os.path.join(base_teacher_dir, t)
-        try:
-            analyze_comparison(log_dir, teacher_dir)
-        except FileNotFoundError:
-            pass
+    if args.analyze:
+        # analyze teachers
+        for t in teachers_to_analyze:
+            print(f'Analyzing teacher {t}')
+            teacher_dir = os.path.join(base_teacher_dir, t)
+            try:
+                analyze_comparison(log_dir, teacher_dir)
+            except FileNotFoundError:
+                pass
 
-    metrics_statistics = []
-    for t in teachers_to_analyze:
-        teacher_dir = os.path.join(base_teacher_dir, t)
-        try:
-            metrics_statistics.append(get_metric_summary(log_dir, teacher_dir))
-        except FileNotFoundError:
-            pass
-    metrics_statistics = np.asarray(metrics_statistics)
+    modes = ['original', 'narrow', 'wide', 'trained']
 
-    mu = metrics_statistics.mean(axis=0)
-    std = metrics_statistics.std(axis=0) / np.sqrt(metrics_statistics.shape[0])
-    print_latex_table(mu, std)
+    # plot teachers
+    if args.plot:
+        for t in teachers:
+            print(f'Plotting teacher {t}')
+            teacher_dir = os.path.join(base_teacher_dir, t)
+            plot_comparison(log_dir, modes, t, lander=True)
+
+        metrics_statistics = []
+        for t in teachers_to_analyze:
+            teacher_dir = os.path.join(base_teacher_dir, t)
+            try:
+                metrics_statistics.append(get_metric_summary(log_dir, teacher_dir))
+            except FileNotFoundError:
+                pass
+        metrics_statistics = np.asarray(metrics_statistics)
+
+        mu = metrics_statistics.mean(axis=0)
+        std = metrics_statistics.std(axis=0) / np.sqrt(metrics_statistics.shape[0])
+        print_latex_table(mu, std)

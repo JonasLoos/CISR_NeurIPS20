@@ -20,7 +20,7 @@ from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
 from src.utils.plotting import cm2inches, set_figure_params
 
 
-def plot_comparison(log_dir, modes, t):
+def plot_comparison(log_dir, modes, t, lander=False):
     figsize = (3.5, 2.8)
     set_figure_params(fontsize=7)
 
@@ -44,11 +44,8 @@ def plot_comparison(log_dir, modes, t):
                 fig = plt.figure(j, figsize=figsize)
                 mu = plot_deployment_metric(os.path.join(log_dir, subdir),
                                             metric=metric_name, fig=fig,
-                                            label=label, legend=True)
+                                            label=label, legend=True, lander=lander)
                 metric_summary[i, j] = mu
-
-    if not os.path.isdir(log_dir):
-        raise Exception('The teacher has to be evaluated before plotting (--evaluate)')
 
     np.savez(os.path.join(log_dir, 'metrics_summary.npz'),
              metric_summary=metric_summary)

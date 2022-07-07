@@ -95,12 +95,20 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
                 format='pdf')
 
 
-def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legend=True):
+def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legend=True, lander=False):
     # setup figure and axis
     if fig is None:
         fig = plt.figure()
     if ax is None:
         ax = plt.gca()
+
+    if lander:
+        if metric == 'successes':
+            metric = 'succ'
+        elif metric == 'training_failures':
+            metric = 'failures'
+        elif metric == 'average_returns':
+            metric = 'r' 
 
     # load data
     returns = []
@@ -117,7 +125,7 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     if len(returns) == 0:
         print(f'[plot_deployment_metric] Couldn\'t find entries for {metric} in {os.path.basename(log_dir)}')
         return np.nan
-
+    print(returns.shape)
     # fix data for teacher_rewards
     if metric == 'teacher_rewards':
         returns = np.cumsum(returns, axis=1)
