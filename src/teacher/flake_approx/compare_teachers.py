@@ -216,7 +216,8 @@ def main():
     if args.plot:
         # plot map
         plot_map(MAPS[MAP_NAME], legend=True)
-        plt.savefig(os.path.join(log_dir, 'map.pdf'))
+        plt.savefig(os.path.join(log_dir, 'map.pdf'), bbox_inches='tight')
+        plt.close()
 
         # plot teachers
         for t in teachers:

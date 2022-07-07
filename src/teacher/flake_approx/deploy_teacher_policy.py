@@ -29,6 +29,7 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
     successes = np.zeros(n_steps, dtype=float)
     training_failures = np.zeros(n_steps, dtype=float)
     averarge_returns = np.zeros(n_steps, dtype=float)
+    policy_actions = np.zeros(n_steps, dtype=int)
     teacher_rewards = np.zeros(n_steps, dtype=float)
     teacher_observations = np.zeros((obs_t.size, n_steps), dtype=float)
 
@@ -46,14 +47,12 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
             a, _ = policy.predict(obs_t, params=params)
         else:
             a, _ = policy.predict(obs_t)
+        policy_actions[i] = a
         obs_t, teacher_rewards[i], done, _ = teacher_env.step(a)
+        teacher_observations[:, i] = obs_t
         if hasattr(policy, 'add_point'):  # For non stationary bandit policy
             policy.add_point(a, teacher_rewards[i])
-        teacher_observations[:, i] = obs_t
-        if deployment_env_fn is None:
-            env = teacher_env.final_env
-        else:
-            env = deployment_env_fn()
+        env = teacher_env.final_env if deployment_env_fn is None else deployment_env_fn()
         # env = teacher_env.actions[a]()
         succ, avg_r, avg_r_succ, traj = deploy(student, env, 10000)
         successes[i], averarge_returns[i] = succ, avg_r
@@ -68,34 +67,39 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
         if done:
             break
     else:
+        # this point should not be reached if the code is correct
         raise Exception(f'Teacher was not done after `n_steps` ({policy}, {teacher_env})')
 
-    # Plot successes and returns
+    # save logged data
     np.savez(os.path.join(log_dir, 'results.npz'),
              successes=successes, averarge_returns=averarge_returns,
-             teacher_rewards=teacher_rewards, training_failures=training_failures)
+             teacher_rewards=teacher_rewards, training_failures=training_failures,
+             policy_actions=policy_actions)
+
+    # plot returns and successes
     plt.figure()
-    f, axes = plt.subplots(1, 3)
+    _, axes = plt.subplots(1, 3)
     metrics = [successes, averarge_returns, teacher_rewards]
     titles = ['successes', 'student ret', 'teacher ret']
-    for a, metric, title in zip(axes, metrics, titles):  # type: ignore
+    for ax, metric, title in zip(axes, metrics, titles):  # type: ignore
         if title == 'teacher ret':
-            a.plot(np.cumsum(metric))
+            ax.plot(np.cumsum(metric))
         else:
-            a.plot(metric)
-        a.set_title(title)
-
+            ax.plot(metric)
+        ax.set_title(title)
     plt.savefig(os.path.join(log_dir, 'results.pdf'), format='pdf')
 
+    # plot teacher observations
     plt.figure()
     for o_num, o in enumerate(teacher_observations):
         plt.plot(o, label=o_num)
     plt.legend()
-    plt.savefig(os.path.join(log_dir, 'teacher_observations.pdf'),
-                format='pdf')
+    plt.title('teacher observations')
+    plt.xlabel('curriculum steps')
+    plt.savefig(os.path.join(log_dir, 'teacher_observations.pdf'))
 
 
-def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legend=True):
+def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, plot_intervention_changes=True, legend=True):
     # setup figure and axis
     if fig is None:
         fig = plt.figure()
@@ -104,11 +108,17 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
 
     # load data
     returns = []
+    policy_actions = []
     for subdir in os.listdir(log_dir):
         if os.path.isdir(os.path.join(log_dir, subdir)):
             try:
                 data = np.load(os.path.join(log_dir, subdir, 'results.npz'))
                 returns.append(data[metric])
+                try:
+                    policy_actions.append(data['policy_actions'])
+                except KeyError:
+                    # don't plot intervention changes if they cannot be loaded
+                    plot_intervention_changes = False
             except FileNotFoundError:
                     pass
     returns = np.array(returns)
@@ -130,6 +140,11 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     # plot
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
+    if plot_intervention_changes:
+        for tmp in policy_actions:
+            for i in range(len(tmp)-1):
+                if tmp[i] != tmp[i+1]:
+                    plt.axvline(x=i, color='lightgray', ls='--')
     ax.plot(mu, label=label)
     ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
     if legend:
