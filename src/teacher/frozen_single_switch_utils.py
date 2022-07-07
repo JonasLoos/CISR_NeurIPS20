@@ -20,9 +20,10 @@ class SingleSwitchPolicy(object):
                         f"{''.join(str(x) for x in self.available_actions)}"
 
     def predict(self, obs):
-        if len(self.available_actions) > 1 and \
-               obs[0] >= self.thresholds[self.t_index, 0] and \
-               obs[1] <= self.thresholds[self.t_index, 1]:
+        if (len(self.available_actions) > 1 and
+                obs[0] >= self.thresholds[self.t_index, 0] and  # student rewards
+                obs[1] <= self.thresholds[self.t_index, 1]  # student constraints
+            ):
             self.available_actions.pop(0)
             self.t_index += 1
         return self.available_actions[0], None

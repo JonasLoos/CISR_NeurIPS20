@@ -270,7 +270,7 @@ def add_teacher(base_map, n_steps=1, danger='H', empty='F', teacher='T'):
     return new_map_list
 
 
-def plot_map(base_map : "list[str]", legend : bool = False) -> None:
+def plot_map(base_map : "list[str]", legend : bool = False, fontsize : "str|int" = 'large') -> None:
     '''plot a frozen lake map'''
     # TODO: use the MAP_ENCODING from frozen_maps.py instead of this weird algorithm
 
@@ -287,17 +287,24 @@ def plot_map(base_map : "list[str]", legend : bool = False) -> None:
                    left=False,
                     labelbottom=False,
                     labelleft=False)
+
+    # setup colomarp
     labels = ['Safe', 'Goal', 'Danger', 'Start', 'Teacher']
-    colors = ['lightskyblue', 'green', 'navy', 'red', 'yellow']
+    colors = ['#e1f5fe', '#81c784', '#1976d2', '#ef9a9a', 'yellow']
     cmap = LinearSegmentedColormap.from_list('', colors)
+
+    # plot map
     plt.imshow(map_to_plot, cmap=cmap)
+
+    # plot legend
     if legend:
         values = np.unique(map_to_plot.ravel())
         patches = [
             mpatches.Patch(color=colors[i], label=labels[i])
             for i in range(len(values))]
-        plt.legend(handles=patches, bbox_to_anchor=(1.01, 1), loc=2,
-                   borderaxespad=0., frameon=False)
+        # plt.legend(handles=patches, bbox_to_anchor=(1.01, 1), loc=2,
+        #            borderaxespad=0., frameon=False, fontsize=fontsize)
+        plt.legend(handles=patches, bbox_to_anchor=(0,-0.25,1,0.2), loc="upper left", mode="expand", borderaxespad=0, ncol=2, frameon=False)
 
     plt.clim(0, 4)
 
