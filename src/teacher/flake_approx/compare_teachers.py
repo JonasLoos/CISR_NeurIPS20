@@ -182,7 +182,12 @@ def main():
     config_file_path_dest = os.path.join(log_dir, 'used_config.py')
     if os.path.exists(config_file_path_dest):
         with open(config_file_path) as a, open(config_file_path_dest) as b:
-            if a.read() != b.read():
+            a, b = [  # remove empty lines and comments
+                '\n'.join(line.strip() for line in file.readlines() if line.strip() and not line.startswith('#'))
+                for file in [a,b]
+            ]
+            if a != b:
+                # files are different
                 print('The current config file differs from existing config file in the results folder:')
                 print(f' -> {config_file_path_dest}')
                 print('To continue, remove the existing config file in the results folder.')

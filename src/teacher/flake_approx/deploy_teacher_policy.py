@@ -99,12 +99,13 @@ def deploy_policy(policy, log_dir, env_f, deployment_env_fn=None, process_name='
     plt.savefig(os.path.join(log_dir, 'teacher_observations.pdf'))
 
 
-def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, plot_intervention_changes=True, legend=True):
+def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legend=True):
     # setup figure and axis
     if fig is None:
         fig = plt.figure()
     if ax is None:
         ax = plt.gca()
+    plot_intervention_changes = label in ['Optimized',]  # only plot horizontal line for Optimized
 
     # load data
     returns = []
