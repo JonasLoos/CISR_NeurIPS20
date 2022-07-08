@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 
 from src.envs.frozen_lake.frozen_maps import MAPS
-from src.envs.frozen_lake.utils import plot_map
+from src.envs.frozen_lake.utils import add_teacher, plot_map
 from src.teacher.flake_approx.config import COMPARISON_FOLDER, MAP_NAME, INTERVENTION_MODES, N_STEPS, NUMBER_OF_TRIALS, TEACHER_DIRS
 from src.teacher.flake_approx.deploy_teacher_policy import deploy_policy, \
     plot_deployment_metric, OpenLoopTeacher
@@ -220,7 +220,7 @@ def main():
 
     if args.plot:
         # plot map
-        plot_map(MAPS[MAP_NAME], legend=True)
+        plot_map(add_teacher(MAPS[MAP_NAME]), legend=True)
         plt.savefig(os.path.join(log_dir, 'map.pdf'), bbox_inches='tight')
         plt.close()
 
