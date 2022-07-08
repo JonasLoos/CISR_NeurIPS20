@@ -1,3 +1,4 @@
+from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -142,10 +143,16 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
     if plot_intervention_changes:
+        # plot a vertical line at the median intervention change index
+        n = len(policy_actions[0])
+        counts = defaultdict(lambda: [0]*n)
         for tmp in policy_actions:
             for i in range(len(tmp)-1):
                 if tmp[i] != tmp[i+1]:
-                    plt.axvline(x=i, color='lightgray', ls='--')
+                    counts[(tmp[i],tmp[i+1])][i] += 1
+        for tmp in counts.values():
+            median_index = [x for k,v in zip(range(n),tmp) for x in [k]*v][len(policy_actions)//2]
+            plt.axvline(x=median_index, color='lightgray', ls='--')
     ax.plot(mu, label=label)
     ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
     if legend:
