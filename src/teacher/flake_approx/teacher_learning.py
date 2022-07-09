@@ -164,5 +164,5 @@ def main(interventions = (0,1,2)):
 
 
 if __name__ == '__main__':
-    main()
-    # main((4,5,6,7))
+    # main()
+    main(tuple(range(3,7)))
