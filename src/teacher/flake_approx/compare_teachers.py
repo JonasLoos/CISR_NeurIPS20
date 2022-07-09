@@ -64,16 +64,12 @@ def plot_comparison(log_dir, modes, t):
 
 
 def run_comparision(log_dir, teacher_dir, modes, t):
-    env_f = partial(create_teacher_env)
-    env_f_original = partial(create_teacher_env, original=True)
-    env_f_single_switch = partial(create_teacher_env, obs_from_training=True)
-    env_f_stationary_bandit = partial(create_teacher_env, non_stationary_bandit=True)
-
     log_dir = os.path.join(log_dir, t)
 
     start_time = time.time()
-    process_pool = mp.Pool()
+    process_pool = mp.Pool()  # setup multi-process pool
     for mode in modes:
+        # select the model for the current policy mode
         if mode in ['SR2', 'Original']:
             model = OpenLoopTeacher([0])
         elif mode == 'SR1':
@@ -89,20 +85,24 @@ def run_comparision(log_dir, teacher_dir, modes, t):
             teacher_class = getattr(teacher_module, mode[:-1] if 'Back' in mode else mode + 'Teacher')
             model = teacher_class(range(3, 1003), steps=int(mode[-1]) if 'Back' in mode else None)
 
+        # setup multiple students for the current policy mode
         for i in range(NUMBER_OF_TRIALS):
             log_tmp = os.path.join(log_dir, mode, f'experiment{i}')
+            # select the correct parameters for the teacher environment
             if mode == 'Original':
-                teacher_env = env_f_original
+                teacher_env = partial(create_teacher_env, original=True)
             elif mode == 'Trained':
-                teacher_env = env_f_single_switch
+                teacher_env = partial(create_teacher_env, obs_from_training=True)
             elif mode == 'Bandit':
-                teacher_env = env_f_stationary_bandit
+                teacher_env = partial(create_teacher_env, non_stationary_bandit=True)
             else:
-                teacher_env = env_f
+                teacher_env = partial(create_teacher_env)
+            # add task to process-pool
             process_name = f'{mode}-{i}'
             process_pool.apply_async(deploy_policy,
                            args=[model, log_tmp, teacher_env,
                                  small_base_cenv_fn, process_name])
+    # wait for all tasks to finish
     process_pool.close()
     process_pool.join()
     print(f'[run_comparison] time elapsed: {time.time() - start_time:.2f} s')
