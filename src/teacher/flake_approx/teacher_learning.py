@@ -15,6 +15,8 @@ from src.teacher.flake_approx.teacher_env import create_teacher_env, \
 def main(interventions = (0,1,2)):
     n_interv = len(interventions)
 
+    print('Initializing parameters based on interventions...')
+
     if n_interv == 2:
         domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (0, 6)},
                   {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.5)}]
@@ -121,11 +123,13 @@ def main(interventions = (0,1,2)):
     else:
         raise ValueError(f'Unexpected number of intrventions. Expected >= 2, but got {n_interv}')
 
+    print('Initializing optimization...')
+
     # Logging dir
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                os.pardir, os.pardir, os.pardir, 'results',
                                'flake')
-    base_dir = os.path.join(results_dir, 'teacher_training', MAP_NAME)
+    base_dir = os.path.join(results_dir, 'teacher_training', MAP_NAME + '_' + ','.join(map(str,interventions)))
     os.makedirs(base_dir, exist_ok=True)
 
     my_bo = BayesianOptimization(bo_objective,
@@ -142,6 +146,7 @@ def main(interventions = (0,1,2)):
     my_bo.model.model['Gaussian_noise.variance'].set_prior(
         GPy.priors.Gamma.from_EV(0.01, 0.1))
 
+    print('Starting optimization...')
     start_time = time.time()
     my_bo.run_optimization(20,
                            report_file=os.path.join(base_dir, 'bo_report.txt'),
