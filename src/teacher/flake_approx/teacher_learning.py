@@ -91,7 +91,7 @@ def main(interventions = (0,1,2)):
         kern = GPy.kern.RBF(
             input_dim = len(domain),
             variance = 1,
-            lengthscale = [1., 0.05]*(2*n_interv-2) + [0.5]*n_interv,
+            lengthscale = [1., 0.05]*(n_interv-1) + [0.5]*n_interv,
             ARD = True
         )
 
@@ -160,3 +160,4 @@ def main(interventions = (0,1,2)):
 
 if __name__ == '__main__':
     main()
+    # main((4,5,6,7))
