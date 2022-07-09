@@ -25,7 +25,7 @@ NUMBER_OF_TRIALS = 1
 # Number of (curriculum) steps
 # Training is done for N_STEPS+1, to account for the zeroth step
 # The paper used 10
-N_STEPS = 15
+N_STEPS = 20
 
 
 # Interventions / modes
@@ -34,7 +34,7 @@ ORIGINAL_INTERVENTION_MODES= ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit
 
 
 # Custom modes: ['Halfway', 'Incremental']
-INTERVENTION_MODES = ['Trained', 'SR1', 'QuarterIncremental']
+INTERVENTION_MODES = ['Trained', 'SR1', 'Incremental4', 'Back8']
 
 
 # Teacher to use (from results/flake/teacher_training)

@@ -207,7 +207,7 @@ class ExpTeacher(object):
         return self.actions[action], None
 
 
-class Back(object):
+class BackTeacher(object):
     """
     Teacher that goes back a constant number of steps
     """
