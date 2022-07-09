@@ -82,9 +82,9 @@ def run_comparision(log_dir, teacher_dir, modes, t):
             model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
         else:
             teacher_module = importlib.import_module("src.teacher.flake_approx.deploy_teacher_policy")
-            teacher_class = getattr(teacher_module, mode + 'Teacher')
-            model = teacher_class(range(3, 1003))
-        
+            teacher_class = getattr(teacher_module, mode[:-1] if 'Back' in mode else mode + 'Teacher')
+            model = teacher_class(range(3, 1003), steps=int(mode[-1]) if 'Back' in mode else None)
+
         for i in range(NUMBER_OF_TRIALS):
             log_tmp = os.path.join(log_dir, mode, f'experiment{i}')
             if mode == 'Original':

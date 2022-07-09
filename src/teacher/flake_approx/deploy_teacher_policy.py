@@ -327,6 +327,18 @@ class StepsTeacher(object):
         return self.actions[steps_teacher_episode], None
 
 
+class Back(object):
+    """
+    Teacher that goes back a constant number of steps
+    """
+    def __init__(self, action_sequence, steps=None):
+        self.actions = action_sequence
+        self.steps = steps
+
+    def predict(self, obs, params=None):
+        return self.actions[self.steps - 1], None
+
+
 if __name__ == '__main__':
     n = 5
     small_map = True
