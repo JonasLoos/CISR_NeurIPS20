@@ -289,7 +289,7 @@ def plot_map(base_map : "list[str]", legend : bool = False, fontsize : "str|int"
                     labelleft=False)
 
     # setup colomarp
-    labels = ['Safe', 'Goal', 'Danger', 'Start', 'Teacher']
+    labels = ['Safe', 'Goal', 'Danger', 'Start', 'Trigger']
     colors = ['#b3e5fc', '#81c784', '#1976d2', '#ef9a9a', '#ffe0b2']
     cmap = LinearSegmentedColormap.from_list('', colors)
 

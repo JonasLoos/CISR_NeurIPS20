@@ -7,7 +7,7 @@ MAP_ENCODING = {
     'G': 'Goal',
     'H': 'Danger',
     'S': 'Start',
-    'T': 'Teacher',  # maybe this should not be used
+    'T': 'Trigger',  # maybe this should not be used
 }
 
 # predefined maps
