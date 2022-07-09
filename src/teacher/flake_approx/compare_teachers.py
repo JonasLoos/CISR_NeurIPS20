@@ -8,12 +8,9 @@ import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
-<<<<<<< HEAD
-=======
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import plot_map
 from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES, NUMBER_OF_TRIALS, ORIGINAL_INTERVENTION_MODES
->>>>>>> master
 
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import add_teacher, plot_map

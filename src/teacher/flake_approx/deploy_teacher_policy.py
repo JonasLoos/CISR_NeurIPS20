@@ -143,7 +143,6 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     # plot
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
-<<<<<<< HEAD
     if plot_intervention_changes:
         # plot a vertical line at the median intervention change index
         n = len(policy_actions[0])
@@ -155,10 +154,6 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
         for tmp in counts.values():
             median_index = [x for k,v in zip(range(n),tmp) for x in [k]*v][len(policy_actions)//2]
             plt.axvline(x=median_index, color='lightgray', ls='--')
-    ax.plot(mu, label=label)
-    ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
-=======
-
     mode = log_dir.split('/')[-1]
     if mode in ORIGINAL_INTERVENTION_MODES:
         ax.plot(mu, label=label, linestyle='dashed')
@@ -166,7 +161,6 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     else:
         ax.plot(mu, label=label)
         ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
->>>>>>> master
     if legend:
         plt.legend(bbox_to_anchor=(0,-0.4,1,0.2), loc="upper left",
                 mode="expand", borderaxespad=0, ncol=3, frameon=False)
