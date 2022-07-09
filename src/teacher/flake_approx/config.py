@@ -13,7 +13,7 @@ COMPARISON_FOLDER = ''
 
 # Map name from src/envs/frozen_lake/frozen_maps.py
 # The paper used 'small'
-MAP_NAME = '16x16'
+MAP_NAME = 'small'
 
 
 # Number of trials (students trained per mode) to get a good average during mode evaluation
@@ -29,8 +29,12 @@ N_STEPS = 5
 
 
 # Interventions / modes
-# The paper used ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
-INTERVENTION_MODES = ['Trained', 'Incremental', 'Original']
+# The paper used the following modes
+ORIGINAL_INTERVENTION_MODES= ['Trained', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
+
+
+# Custom modes: ['Halfway', 'Incremental']
+INTERVENTION_MODES = ['Halfway', 'Trained', 'Incremental', 'SR1', 'SR2', 'HR', 'Original', 'Bandit']
 
 
 # Teacher to use (from results/flake/teacher_training)

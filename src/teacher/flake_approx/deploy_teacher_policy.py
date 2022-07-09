@@ -7,6 +7,7 @@ import time
 from itertools import cycle
 from functools import partial
 from src.teacher.NonStationaryBanditPolicy import NonStationaryBanditPolicy
+from src.teacher.flake_approx.config import ORIGINAL_INTERVENTION_MODES
 
 from src.teacher.flake_approx.teacher_env import create_teacher_env
 from src.envs.frozen_lake.utils import plot_trajectories, deploy
@@ -142,6 +143,7 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
     # plot
     if label is None:
         label = log_dir.split('/')[-1].replace('_', ' ')
+<<<<<<< HEAD
     if plot_intervention_changes:
         # plot a vertical line at the median intervention change index
         n = len(policy_actions[0])
@@ -155,8 +157,19 @@ def plot_deployment_metric(log_dir, metric, ax=None, fig=None, label=None, legen
             plt.axvline(x=median_index, color='lightgray', ls='--')
     ax.plot(mu, label=label)
     ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
+=======
+
+    mode = log_dir.split('/')[-1]
+    if mode in ORIGINAL_INTERVENTION_MODES:
+        ax.plot(mu, label=label, linestyle='dashed')
+        ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.2)
+    else:
+        ax.plot(mu, label=label)
+        ax.fill_between(np.arange(mu.size), mu-std, mu+std, alpha=0.5)
+>>>>>>> master
     if legend:
-        plt.legend(frameon=False, loc='best')
+        plt.legend(bbox_to_anchor=(0,-0.4,1,0.2), loc="upper left",
+                mode="expand", borderaxespad=0, ncol=3, frameon=False)
     # Ticks
     plt.tick_params(axis='both',
                     which='both',
@@ -225,6 +238,48 @@ class HalfIncrementalTeacher(object):
         return self.actions[int(np.ceil(0.5 * action))], None
 
 
+class QuarterIncrementalTeacher(object):
+    """
+    Incremental heuristic teacher that increases the buffer size on each intervention
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        action = self.interventions_counter
+        self.interventions_counter += 1
+        return self.actions[int(np.ceil(0.25 * action))], None
+
+
+class EighthIncrementalTeacher(object):
+    """
+    Incremental heuristic teacher that increases the buffer size on each intervention
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        action = self.interventions_counter
+        self.interventions_counter += 1
+        return self.actions[int(np.ceil(0.125 * action))], None
+
+
+class SixteenthIncrementalTeacher(object):
+    """
+    Incremental heuristic teacher that increases the buffer size on each intervention
+    """
+    def __init__(self, action_sequence):
+        self.actions = action_sequence
+        self.interventions_counter = 0
+
+    def predict(self, obs, params=None):
+        action = self.interventions_counter
+        self.interventions_counter += 1
+        return self.actions[int(np.ceil(0.0625 * action))], None
+
+
 class TwentyPercentTeacher(object):
     """
     Heuristic teacher that goes back twenty percent of the number of student training episodes in the current env
@@ -288,7 +343,7 @@ class StepsEpisodeTeacher(object):
         return self.actions[steps_per_episode], None
 
 
-class StepsTeacherTeacher(object):
+class StepsTeacher(object):
     """
     Teacher that goes back the current teacher steps in the episode
     """
@@ -298,6 +353,18 @@ class StepsTeacherTeacher(object):
     def predict(self, obs, params=None):
         steps_teacher_episode = params['steps_teacher_episode']
         return self.actions[steps_teacher_episode], None
+
+
+class Back(object):
+    """
+    Teacher that goes back a constant number of steps
+    """
+    def __init__(self, action_sequence, steps=None):
+        self.actions = action_sequence
+        self.steps = steps
+
+    def predict(self, obs, params=None):
+        return self.actions[self.steps - 1], None
 
 
 if __name__ == '__main__':

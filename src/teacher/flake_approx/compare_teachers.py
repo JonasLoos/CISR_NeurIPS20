@@ -8,6 +8,12 @@ import importlib
 import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+<<<<<<< HEAD
+=======
+from src.envs.frozen_lake.frozen_maps import MAPS
+from src.envs.frozen_lake.utils import plot_map
+from src.teacher.flake_approx.config import MAP_NAME, INTERVENTION_MODES, NUMBER_OF_TRIALS, ORIGINAL_INTERVENTION_MODES
+>>>>>>> master
 
 from src.envs.frozen_lake.frozen_maps import MAPS
 from src.envs.frozen_lake.utils import add_teacher, plot_map
@@ -22,8 +28,7 @@ from src.utils.plotting import cm2inches, set_figure_params
 
 
 def plot_comparison(log_dir, modes, t):
-    text_width = cm2inches(13.968)  # Text width in cm
-    figsize = (text_width / 2, text_width / 3.5)
+    figsize = (3.5, 2.8)
     set_figure_params(fontsize=7)
 
     # Fix plotting when using command line on Mac
@@ -56,9 +61,8 @@ def plot_comparison(log_dir, modes, t):
              metric_summary=metric_summary)
     for j, metric_name in enumerate(metric):
         plt.figure(j)
-        plt.tight_layout(pad=0.2)
         plt.savefig(os.path.join(log_dir, metric_name + '.pdf'), format='pdf',
-                    transparent=True)
+                    bbox_inches='tight')
         plt.close(j)
 
 
@@ -73,10 +77,10 @@ def run_comparision(log_dir, teacher_dir, modes, t):
     start_time = time.time()
     process_pool = mp.Pool()
     for mode in modes:
-        if mode == 'SR2':
-            model = OpenLoopTeacher([1])
-        elif mode in ['SR1', 'Original']:
+        if mode in ['SR2', 'Original']:
             model = OpenLoopTeacher([0])
+        elif mode == 'SR1':
+            model = OpenLoopTeacher([1])
         elif mode == 'HR':
             model = OpenLoopTeacher([2])
         elif mode == 'Bandit':
@@ -85,9 +89,9 @@ def run_comparision(log_dir, teacher_dir, modes, t):
             model = SingleSwitchPolicy.load(os.path.join(teacher_dir, 'trained_teacher'))
         else:
             teacher_module = importlib.import_module("src.teacher.flake_approx.deploy_teacher_policy")
-            teacher_class = getattr(teacher_module, mode + 'Teacher')
-            model = teacher_class(range(3, 1003))
-        
+            teacher_class = getattr(teacher_module, mode[:-1] if 'Back' in mode else mode + 'Teacher')
+            model = teacher_class(range(3, 1003), steps=int(mode[-1]) if 'Back' in mode else None)
+
         for i in range(NUMBER_OF_TRIALS):
             log_tmp = os.path.join(log_dir, mode, f'experiment{i}')
             if mode == 'Original':
