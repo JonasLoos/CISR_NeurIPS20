@@ -190,8 +190,8 @@ def main():
                 # files are different
                 print('The current config file differs from existing config file in the results folder:')
                 print(f' -> {config_file_path_dest}')
-                print('To continue, remove the existing config file in the results folder.')
-                return
+                # print('To continue, remove the existing config file in the results folder.')
+                # return
     else:
         shutil.copyfile(config_file_path, config_file_path_dest)
 
