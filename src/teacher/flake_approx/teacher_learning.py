@@ -12,7 +12,9 @@ from src.teacher.flake_approx.teacher_env import create_teacher_env, \
     small_base_cenv_fn
 
 
-def main(n_interv : int = 3):
+def main(interventions = (0,1,2)):
+    n_interv = len(interventions)
+
     if n_interv == 2:
         domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (0, 6)},
                   {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.5)}]
@@ -29,16 +31,19 @@ def main(n_interv : int = 3):
                 thresholds = thresholds[0]
             policy = SingleSwitchPolicy(thresholds)
             return evaluate_single_switch_policy(policy, teacher_env, student_final_env)
+
     elif n_interv == 3:
-        domain = [{'name': 'var_1', 'type': 'continuous', 'domain': (-0.5,
-                                                                     5.5)},
-                  {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.2)},
-                  {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5,
-                                                                     5.5)},
-                  {'name': 'var_4', 'type': 'continuous', 'domain': (0, 0.2)},
-                  {'name': 'var_5', 'type': 'discrete', 'domain': (0, 1, 2)},
-                  {'name': 'var_6', 'type': 'discrete', 'domain': (0, 1, 2)},
-                  {'name': 'var_7', 'type': 'discrete', 'domain': (0, 1, 2)}]
+        domain = [
+            # threshold limits
+            {'name': 'var_1', 'type': 'continuous', 'domain': (-0.5, 5.5)},
+            {'name': 'var_2', 'type': 'continuous', 'domain': (0, 0.2)},
+            {'name': 'var_3', 'type': 'continuous', 'domain': (-0.5, 5.5)},
+            {'name': 'var_4', 'type': 'continuous', 'domain': (0, 0.2)},
+            # teacher interventions
+            {'name': 'var_5', 'type': 'discrete', 'domain': (0, 1, 2)},
+            {'name': 'var_6', 'type': 'discrete', 'domain': (0, 1, 2)},
+            {'name': 'var_7', 'type': 'discrete', 'domain': (0, 1, 2)}
+        ]
 
         kern = GPy.kern.RBF(input_dim=7, variance=1,
                             lengthscale=[1., 0.05, 1, 0.05, 0.5, 0.5, 0.5],
@@ -67,8 +72,54 @@ def main(n_interv : int = 3):
             policy = init_teaching_policy(params)
             return evaluate_single_switch_policy(policy, teacher_env,
                                                  student_final_env)
+
+    elif n_interv > 3:
+        # init domain of teacher parameters to optimize
+        domain = [
+            # threshold limits
+            x for i in range(0, 2*n_interv-2, 2) for x in [
+                {'name': f'var_{i}', 'type': 'continuous', 'domain': (-0.5, 5.5)},
+                {'name': f'var_{i+1}', 'type': 'continuous', 'domain': (0, 0.2)},
+            ]
+        ] + [
+            # teacher interventions
+            {'name': f'var_{i}', 'type': 'discrete', 'domain': interventions}
+            for i in range(2*n_interv-2, 3*n_interv-2)
+        ]
+
+        # init RBF kernel
+        kern = GPy.kern.RBF(
+            input_dim = len(domain),
+            variance = 1,
+            lengthscale = [1., 0.05]*(2*n_interv-2) + [0.5]*n_interv,
+            ARD = True
+        )
+
+        # TODO: maybe add priors?
+
+        # init model
+        # TODO: maybe adjust parameters
+        model = GPModel(kernel=kern, noise_var=0.05, max_iters=1000)
+
+        # create environments
+        teacher_env = create_teacher_env(obs_from_training=True)
+        student_final_env = small_base_cenv_fn()
+
+        def init_teaching_policy(params, name=None):
+            params = np.squeeze(np.array(params))
+            thresholds = params[:2*n_interv-2]
+            thresholds = thresholds.reshape(n_interv-1, 2)
+            available_actions = params[2*n_interv-2:].astype(np.int64)
+            policy = SingleSwitchPolicy(thresholds, available_actions, name=name)
+            return policy
+
+        def bo_objective(params):
+            policy = init_teaching_policy(params)
+            return evaluate_single_switch_policy(policy, teacher_env,
+                                                 student_final_env)
+
     else:
-        raise ValueError(f'Unexpected value for n_interv. Expected 2 or 3, but got {n_interv}')
+        raise ValueError(f'Unexpected number of intrventions. Expected >= 2, but got {n_interv}')
 
     # Logging dir
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
