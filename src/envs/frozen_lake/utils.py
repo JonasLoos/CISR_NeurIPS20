@@ -290,7 +290,7 @@ def plot_map(base_map : "list[str]", legend : bool = False, fontsize : "str|int"
 
     # setup colomarp
     labels = ['Safe', 'Goal', 'Danger', 'Start', 'Teacher']
-    colors = ['#e1f5fe', '#81c784', '#1976d2', '#ef9a9a', '#fff9c4']
+    colors = ['#e1f5fe', '#81c784', '#1976d2', '#ef9a9a', '#ffe0b2']
     cmap = LinearSegmentedColormap.from_list('', colors)
 
     # plot map
@@ -302,9 +302,9 @@ def plot_map(base_map : "list[str]", legend : bool = False, fontsize : "str|int"
         patches = [
             mpatches.Patch(color=colors[i], label=labels[i])
             for i in range(len(values))]
-        # plt.legend(handles=patches, bbox_to_anchor=(1.01, 1), loc=2,
-        #            borderaxespad=0., frameon=False, fontsize=fontsize)
-        plt.legend(handles=patches, bbox_to_anchor=(0,-0.25,1,0.2), loc="upper left", mode="expand", borderaxespad=0, ncol=2, frameon=False)
+        plt.legend(handles=patches, bbox_to_anchor=(1.01, 1), loc=2,
+                   borderaxespad=0., frameon=False, fontsize=fontsize)
+        # plt.legend(handles=patches, bbox_to_anchor=(0,-0.25,1,0.2), loc="upper left", mode="expand", borderaxespad=0, ncol=2, frameon=False)  # below
 
     plt.clim(0, 4)
 
